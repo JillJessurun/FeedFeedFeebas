@@ -1,19 +1,37 @@
+//stap 63
+
 import java.awt.*;
 import java.awt.image.BufferStrategy;
 
 public class Game extends Canvas implements Runnable {
 
-    public static final int WIDTH = 1000;
-    public static final int HEIGHT = 1000;
+    public static int WIDTH = 150;
+    public static int HEIGHT = 80;
     private Thread thread;
     private boolean running = true;
     private Handler handler;
+    private HUD hud;
 
     //constructor
     public Game(){
-        handler = new Handler();
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        WIDTH = (int)screenSize.getWidth();
+        HEIGHT = (int)screenSize.getHeight();
 
+        System.out.println("WIDTH = " + WIDTH);
+        System.out.println("HEIGHT = " + HEIGHT);
+
+        //create the window
         new Window(WIDTH, HEIGHT, "FeedFeedFeebas!", this);
+
+        //create the handler
+        handler = new Handler();
+        hud = new HUD();
+        handler.addObject(new Player(WIDTH/2-32, HEIGHT/2-32, ID.Player, handler));
+        handler.addObject(new Voltorb(WIDTH/2-20, HEIGHT/2-20, ID.Voltorb, handler));
+
+        //listeners for input
+        this.addKeyListener(new KeyInput(handler));
     }
 
     //start thread
@@ -34,6 +52,7 @@ public class Game extends Canvas implements Runnable {
 
     public void tick(){
         handler.tick();
+        hud.tick();
     }
 
     //render method
@@ -45,14 +64,16 @@ public class Game extends Canvas implements Runnable {
         }
 
         Graphics g = bs.getDrawGraphics();
+        Graphics2D g2d = (Graphics2D) g;
 
         g.setColor(Color.black);
         g.fillRect(0, 0, WIDTH, HEIGHT);
 
+        handler.render(g);
+        hud.render(g, g2d);
+
         g.dispose();
         bs.show();
-
-        handler.render(g);
     }
 
     //game loop
@@ -84,6 +105,17 @@ public class Game extends Canvas implements Runnable {
             }
         }
         stop();
+    }
+
+    //clamp method: if the var is at the max, it stays at the max (same with the min)
+    public static float clamp(float var, float min, float max){
+        if(var >= max){
+            return var = max;
+        }else if(var <= min){
+            return var = min;
+        }else{
+            return var;
+        }
     }
 
     //main

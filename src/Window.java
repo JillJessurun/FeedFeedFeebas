@@ -11,6 +11,8 @@ public class Window {
         frame.setMaximumSize(new Dimension(width, height));
         frame.setMinimumSize(new Dimension(width, height));
 
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);//make the screen fullscreen
+        frame.setUndecorated(true);//makes sure you dont see the window
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//makes the exit button int the top right corner work
         frame.setResizable(true);//makes sure you cannot resize the window which could generate a lot of problems
         frame.setLocationRelativeTo(null);//the window is locked to the middle of the screen now (null does that)
