@@ -1,13 +1,13 @@
 import java.awt.*;
 
-public class Voltorb extends GameObject{
+public class Chansey extends GameObject{
     private Handler handler;
 
-    public Voltorb(float x, float y, ID id, Handler handler) {
+    public Chansey(float x, float y, ID id, Handler handler) {
         super(x, y, id);
         this.handler = handler;
-        velX = 4;
-        velY = 2;
+        velX = 2;
+        velY = 1;
     }
 
     public Rectangle getBounds() {
@@ -29,7 +29,7 @@ public class Voltorb extends GameObject{
     }
 
     public void render(Graphics g) {
-        g.setColor(Color.yellow);
+        g.setColor(Color.pink);
         g.fillRect((int) x, (int) y, 20, 20);
     }
 }

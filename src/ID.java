@@ -3,5 +3,6 @@ public enum ID {
     Food(),
     Voltorb(),
     Koffing(),
-    Glalie()
+    Glalie(),
+    Chansey()
 }

@@ -11,6 +11,7 @@ public class Game extends Canvas implements Runnable {
     private boolean running = true;
     private Handler handler;
     private HUD hud;
+    private KeyInput keyInput;
 
     //constructor
     public Game(){
@@ -27,11 +28,17 @@ public class Game extends Canvas implements Runnable {
         //create the handler
         handler = new Handler();
         hud = new HUD();
-        handler.addObject(new Player(WIDTH/2-32, HEIGHT/2-32, ID.Player, handler));
-        handler.addObject(new Voltorb(WIDTH/2-20, HEIGHT/2-20, ID.Voltorb, handler));
+
+        Player player1 = new Player(WIDTH/2-32, HEIGHT/2-32, ID.Player, handler, hud, keyInput);
+        handler.addObject(player1);
+        handler.addObject(new Voltorb(0, 0, ID.Voltorb, handler));
+        handler.addObject(new Koffing(0, 0, ID.Koffing, handler));
+        handler.addObject(new Glalie(0, 0, ID.Glalie, handler));
+        handler.addObject(new Chansey(0, 0, ID.Chansey, handler));
+        handler.addObject(new Food(1000, 700, ID.Food, handler));
 
         //listeners for input
-        this.addKeyListener(new KeyInput(handler));
+        this.addKeyListener(new KeyInput(handler, player1));
     }
 
     //start thread

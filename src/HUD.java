@@ -3,11 +3,24 @@ import java.awt.*;
 public class HUD {
     public static int HEALTH = 0; //goes to 10000 -> then feebas dies
     public static int HEALTHPERCENTAGE = 0;
+    public static int EATSCORE = 0;
+    public boolean koffingHit = false;
+    private int timer = 60;
 
     public void tick(){
         HEALTH = (int)Game.clamp(HEALTH, 0, 10000);
-        HEALTH = HEALTH + 5;
-        HUD.HEALTHPERCENTAGE = HUD.HEALTH / 100;
+        if (!koffingHit) {
+            HEALTH = HEALTH + 5;
+            HUD.HEALTHPERCENTAGE = HUD.HEALTH / 100;
+        }else{
+            timer--;
+            HEALTH = HEALTH + 30;
+            HUD.HEALTHPERCENTAGE = HUD.HEALTH / 100;
+            if (timer == 0){
+                timer = 60;
+                koffingHit = false;
+            }
+        }
     }
 
     public void render(Graphics g, Graphics2D g2d){
@@ -35,8 +48,17 @@ public class HUD {
         g.setFont(font);
         if (HEALTH < 10000) {
             g.drawString("HUNGER  =  " + HEALTHPERCENTAGE, 560, 62);
+            g.drawString("EAT SCORE  =  " + EATSCORE, 740, 62);
         }else{
             g.drawString("-  DEAD  -", 560, 62);
         }
+    }
+
+    public void setEATSCORE(int EATSCORE) {
+        HUD.EATSCORE = EATSCORE;
+    }
+
+    public void setHEALTH(int newHEALTH) {
+        HEALTH = newHEALTH;
     }
 }
