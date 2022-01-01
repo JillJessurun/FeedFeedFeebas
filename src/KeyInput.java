@@ -6,10 +6,12 @@ public class KeyInput extends KeyAdapter {
     private boolean[] keyDown = new boolean[4];
     private Player player;
     public boolean glalieHit;
+    private Game game;
 
-    public KeyInput(Handler handler, Player player){
+    public KeyInput(Handler handler, Player player, Game game){
         this.handler = handler;
         this.player = player;
+        this.game = game;
         keyDown[0] = false;
         keyDown[1] = false;
         keyDown[2] = false;
@@ -21,16 +23,48 @@ public class KeyInput extends KeyAdapter {
 
         for (int i = 0; i < handler.object.size(); i++) {
             GameObject tempObject = handler.object.get(i);
-
             if(tempObject.getId() == ID.Player){
                 // key events for player 1
                 if (!glalieHit){
-                    if (key == KeyEvent.VK_W) {tempObject.setVelY(player.getNegativeVelocity()); keyDown[0] = true;}
-                    if (key == KeyEvent.VK_S) {tempObject.setVelY(player.getPositiveVelocity()); keyDown[1] = true;}
-                    if (key == KeyEvent.VK_A) {tempObject.setVelX(player.getNegativeVelocity()); keyDown[2] = true;}
-                    if (key == KeyEvent.VK_D) {tempObject.setVelX(player.getPositiveVelocity()); keyDown[3] = true;}
+                    if (key == KeyEvent.VK_W) {
+                        tempObject.setVelY(player.getNegativeVelocity()); keyDown[0] = true;
+                        if (player.left) {
+                            player.left = false;
+                            player.right = false;
+                        }
+                    }
+                    if (key == KeyEvent.VK_S) {
+                        tempObject.setVelY(player.getPositiveVelocity()); keyDown[1] = true;
+                        if (player.left) {
+                            player.left = false;
+                            player.right = false;
+                        }
+                    }
+                    if (key == KeyEvent.VK_A) {
+                        tempObject.setVelX(player.getNegativeVelocity()); keyDown[2] = true;
+                        player.left = true;
+                        player.right = false;
+                    }
+                    if (key == KeyEvent.VK_D) {
+                        tempObject.setVelX(player.getPositiveVelocity()); keyDown[3] = true;
+                        player.left = false;
+                        player.right = true;
+                    }
+                    if (key == KeyEvent.VK_P) {
+                        if (game.gamePaused){
+                            game.gamePaused = false;
+                        }else{
+                            game.gamePaused = true;
+                        }
+                    }
                 }
-                if (key == KeyEvent.VK_ESCAPE) {System.exit(0);}
+                if (key == KeyEvent.VK_ESCAPE) {
+                    if (game.gamePaused){
+                        game.gamePaused = false;
+                    }else {
+                        System.exit(0);
+                    }
+                }
             }
         }
     }

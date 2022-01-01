@@ -1,6 +1,9 @@
 import jdk.swing.interop.SwingInterOpUtils;
 
 import java.awt.*;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.Random;
 
 public class Player extends GameObject{
@@ -9,6 +12,11 @@ public class Player extends GameObject{
     private HUD hud;
     private KeyInput keyInput;
     private Random random;
+    private BufferedImage feebas;
+    private BufferedImage food;
+    private MakeTransparent makeTransparent;
+    private MakeMirror makeMirror;
+    private Game game;
 
     private int positiveVelocity = 7;
     private int negativeVelocity = -7;
@@ -16,13 +24,20 @@ public class Player extends GameObject{
     private boolean glalieHit = false;
     private int timer = 150;
     private int timer2 = 70;
+    public boolean right = false;
+    public boolean left = false;
 
-    public Player(float x, float y, ID id, Handler handler, HUD hud, KeyInput keyInput) {
+    public Player(float x, float y, ID id, Handler handler, HUD hud, KeyInput keyInput, BufferedImage feebas, MakeTransparent makeTransparent, BufferedImage food, MakeMirror makeMirror, Game game) {
         super(x, y, id);
         this.handler = handler;
+        this.food = food;
         this.hud = hud;
         this.keyInput = keyInput;
-        this.keyInput = new KeyInput(handler, this);
+        this.keyInput = new KeyInput(handler, this, game);
+        this.feebas = feebas;
+        this.makeTransparent = makeTransparent;
+        this.makeMirror = makeMirror;
+        this.game = game;
         random = new Random();
     }
 
@@ -30,8 +45,8 @@ public class Player extends GameObject{
         x += velX;
         y += velY;
 
-        x = Game.clamp(x, 0, Game.WIDTH - 32);
-        y = Game.clamp(y, 0, Game.HEIGHT - 32);
+        x = Game.clamp(x, -60, Game.WIDTH - 130);
+        y = Game.clamp(y, -50, Game.HEIGHT - 138);
 
         collision();
 
@@ -61,8 +76,16 @@ public class Player extends GameObject{
     }
 
     public void render(Graphics g) {
-        g.setColor(Color.CYAN);
-        g.fillRect((int)x, (int)y, 32, 32);
+        Graphics2D g2d = (Graphics2D) g;
+        int colour = feebas.getRGB(0, 0);
+        Image image = makeTransparent.makeColorTransparent(feebas, new Color(colour));
+        BufferedImage transparent = makeTransparent.imageToBufferedImage(image);
+
+        if (right && !left){
+            g2d.drawImage(makeMirror.Mirror(transparent), (int) x - 115, (int) y + 27, null);
+        }else{
+            g2d.drawImage(transparent, (int) x + 25, (int) y + 25, null);
+        }
     }
 
     private void collision(){
@@ -97,7 +120,7 @@ public class Player extends GameObject{
                         hud.setHEALTH(HUD.HEALTH - 800);
                         hud.setEATSCORE(HUD.EATSCORE + 1);
                         handler.removeObject(tempObject);
-                        handler.addObject(new Food(random.nextInt(0,Game.WIDTH - 20), random.nextInt(0,Game.HEIGHT- 20), ID.Food, handler));
+                        handler.addObject(new Food(random.nextInt(0,Game.WIDTH - 80), random.nextInt(0,Game.HEIGHT- 80), ID.Food, handler, makeTransparent, food));
                     }
                 }
             }
@@ -105,7 +128,7 @@ public class Player extends GameObject{
     }
 
     public Rectangle getBounds() {
-        return new Rectangle ((int)x, (int)y, 32, 32);
+        return new Rectangle ((int)x+60, (int)y+48, 70, 92);
     }
 
     public int getPositiveVelocity() {
