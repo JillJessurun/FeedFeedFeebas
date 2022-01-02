@@ -68,8 +68,6 @@ public class HUD {
         Color color = new Color(59, 234, 0);
         Color color2 = new Color(234, 187, 0);
         Color color3 = new Color(234, 0, 0);
-        Color color4 = new Color(2, 229, 210);
-        Color color5 = new Color(230, 0, 255, 40);
 
         //health
         if (HEALTH >= 0 && HEALTH < 5000) {
@@ -104,14 +102,10 @@ public class HUD {
         int colour = chansey.getRGB(0, 0);
         g2d.drawImage(makeTransparent.makeColorTransparent(chansey, new Color(colour)), 1440, CHANSEYRATE / 5, null);
 
-        //FONTS
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         //pokemon font
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         Font pokemonFont = Font.createFont(Font.TRUETYPE_FONT, new File("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Fonts\\pokemon.ttf")).deriveFont(30f);
         ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Fonts\\pokemon.ttf")));
-        //paused font
-        Font pausedFont = Font.createFont(Font.TRUETYPE_FONT, new File("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Fonts\\Alien Eclipse Italic.ttf")).deriveFont(110f);
-        ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Fonts\\Alien Eclipse Italic.ttf")));
 
         //displaying hunger rate + score
         g.setFont(pokemonFont);
@@ -130,15 +124,6 @@ public class HUD {
             g.setColor(Color.red);
             g.drawString("-  DEAD  -", 560, 62);
         }
-
-        //paused word
-        if (game.gamePaused){
-            g.setFont(pausedFont);
-            g.setColor(color5);
-            g.fillRect(0,0,1920,1080);
-            g.setColor(color4);
-            g.drawString("PAUSED", 560, 400);
-        }
     }
 
     public void setEATSCORE(int EATSCORE) {
@@ -153,5 +138,36 @@ public class HUD {
 
     public int getCHANSEYRATE() {
         return CHANSEYRATE;
+    }
+
+    public static void setHEALTHPERCENTAGE(int HEALTHPERCENTAGE) {
+        HUD.HEALTHPERCENTAGE = HEALTHPERCENTAGE;
+    }
+
+    public void setKoffingHit(boolean koffingHit) {
+        this.koffingHit = koffingHit;
+    }
+
+    public void setTimer(int timer) {
+        this.timer = timer;
+    }
+
+    public void setChanseytimer(int chanseytimer) {
+        this.chanseytimer = chanseytimer;
+    }
+
+    public void setChanseyGreen(boolean chanseyGreen) {
+        this.chanseyGreen = chanseyGreen;
+    }
+
+    public void resetHUD(){
+        setHEALTH(0);
+        setHEALTHPERCENTAGE(0);
+        setEATSCORE(0);
+        setCHANSEYRATE(0);
+        setKoffingHit(false);
+        setTimer(60);
+        setChanseytimer(0);
+        setChanseyGreen(false);
     }
 }

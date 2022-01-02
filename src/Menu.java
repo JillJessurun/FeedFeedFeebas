@@ -5,8 +5,6 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Random;
 
 public class Menu extends MouseAdapter {
@@ -61,7 +59,8 @@ public class Menu extends MouseAdapter {
 
         //quit button
         if (mouseOver(mx, my, 238, 645, 110, 53) && game.gameState == Game.STATE.Menu){
-            System.exit(0);
+            //System.exit(0);
+            game.gameState = Game.STATE.PopUp;
         }
 
         //back button options
@@ -149,7 +148,7 @@ public class Menu extends MouseAdapter {
         //buttons
         g.setFont(buttonFont);
         g.setColor(Color.black);
-        if (game.gameState == Game.STATE.Menu) {
+        if (game.gameState == Game.STATE.Menu || game.gameState == Game.STATE.PopUp) {
             g.drawString("Play", 240, 370);
             //g.drawRect(238, 325, 105, 53);
             g.drawString("Options", 240, 530);

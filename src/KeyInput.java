@@ -51,19 +51,28 @@ public class KeyInput extends KeyAdapter {
                         player.right = true;
                     }
                     if (key == KeyEvent.VK_P) {
-                        if (game.gamePaused){
-                            game.gamePaused = false;
+                        if (game.gameState == Game.STATE.Pause){
+                            game.gameState = Game.STATE.Level1;
+
                         }else{
-                            game.gamePaused = true;
+                            game.gameState = Game.STATE.Pause;
                         }
                     }
                 }
                 if (key == KeyEvent.VK_ESCAPE) {
-                    if (game.gamePaused){
-                        game.gamePaused = false;
-                    }else if (game.gameState == Game.STATE.Level1){
-                        game.gamePaused = true;
-                    }else {
+                    if (game.gameState == Game.STATE.Pause) {
+                        game.gameState = Game.STATE.Level1;
+                    }else if (game.gameState == Game.STATE.Level1 && game.inGame) {
+                        game.gameState = Game.STATE.Pause;
+                    }else if (game.gameState == Game.STATE.Level1) {
+
+                    }else if (game.gameState == Game.STATE.Options){
+                        game.gameState = Game.STATE.Menu;
+                    }else if(game.gameState == Game.STATE.PopUp && game.inGame){
+                        game.gameState = Game.STATE.Pause;
+                    }else if (game.gameState == Game.STATE.PopUp){
+                        game.gameState = Game.STATE.Menu;
+                    }else{
                         System.exit(0);
                     }
                 }

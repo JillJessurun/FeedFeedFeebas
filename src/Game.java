@@ -10,6 +10,11 @@ ideas:
 - icoontje van snelkoppeling aanpassen
 - powerups toevoegen (chansey bar refill, health refill, multiple food spawns, speed power up, enemy freeze, enemy slow)
 - target toevoegen (bepaald aantal food eten) of timer toevoegen (als ie 0 is heb je het level gehaald)
+- level systeem
+- geluid! theme song en soundeffects
+- aftellen zijn cijfers die van klein naar groot gaan
+- enemies hebben verschillende grootte
+- options; save, mute, help
  */
 
 import java.awt.*;
@@ -31,16 +36,24 @@ public class Game extends Canvas implements Runnable {
     private MakeTransparent makeTransparent;
     private Random random;
     private MakeMirror makeMirror;
-    public boolean gamePaused = false;
+    //public boolean gamePaused = false;
     private StartCountdown startCountdown;
     private Menu menu;
+    private int timer = 0;
+    private PausedMenu pausedMenu;
+    private Popup popUpWarning;
+    public boolean inGame = false;
 
     //pages menu screen
     public enum STATE {
         Menu,
         Options,
+        Pause,
+        OptionsInGame,
+        PopUp,
         Level1
     }
+
     public STATE gameState = STATE.Menu;
 
     //images
@@ -124,8 +137,8 @@ public class Game extends Canvas implements Runnable {
         feebasSprite = image.resizeImage(feebasSprite, 450, 450);
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        WIDTH = (int)screenSize.getWidth();
-        HEIGHT = (int)screenSize.getHeight();
+        WIDTH = (int) screenSize.getWidth();
+        HEIGHT = (int) screenSize.getHeight();
 
         System.out.println("WIDTH = " + WIDTH);
         System.out.println("HEIGHT = " + HEIGHT);
@@ -141,55 +154,67 @@ public class Game extends Canvas implements Runnable {
         makeMirror = new MakeMirror();
         startCountdown = new StartCountdown();
         menu = new Menu(feebasBG, feebasSprite, makeTransparent, handler, this, feebas, random, steak);
+        pausedMenu = new PausedMenu(this);
+        popUpWarning = new Popup(this, hud, startCountdown);
 
-        Player player1 = new Player(WIDTH/2-32, HEIGHT/2-32, ID.Player, handler, hud, keyInput, feebas, makeTransparent, steak, makeMirror, this);
+        Player player1 = new Player(WIDTH / 2 - 32, HEIGHT / 2 - 32, ID.Player, handler, hud, keyInput, feebas, makeTransparent, steak, makeMirror, this);
         handler.addObject(player1);
         handler.addObject(new Voltorb(0, 0, ID.Voltorb, handler, voltorb, makeTransparent, makeMirror));
         handler.addObject(new Koffing(0, 0, ID.Koffing, handler, koffing, makeTransparent, makeMirror));
         handler.addObject(new Glalie(0, 0, ID.Glalie, handler, glalie, makeTransparent, makeMirror));
         handler.addObject(new Chansey(0, 640, ID.Chansey, handler, chansey, makeTransparent, makeMirror, hud));//y = 785 is on the ground
-        handler.addObject(new Food(random.nextInt(0,Game.WIDTH - 20), random.nextInt(0,Game.HEIGHT- 20), ID.Food, handler, makeTransparent, steak));
+        handler.addObject(new Food(random.nextInt(0, Game.WIDTH - 20), random.nextInt(0, Game.HEIGHT - 20), ID.Food, handler, makeTransparent, steak));
 
         //listeners for input
         this.addKeyListener(new KeyInput(handler, player1, this));
         this.addMouseListener(this.menu);
+        this.addMouseListener(this.pausedMenu);
+        this.addMouseListener(this.popUpWarning);
     }
 
     //start thread
-    public synchronized void start(){
+    public synchronized void start() {
         thread = new Thread(this);
         thread.start();
     }
 
     //stop thread
-    public synchronized void stop(){
-        try{
+    public synchronized void stop() {
+        try {
             thread.join();
             running = false;
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println("An error has occured, dunno what");
         }
     }
 
-    public void tick(){
+    public void tick() {
         if (gameState == STATE.Level1) {
             if (startCountdown.timer >= 260) {
-                if (!gamePaused) {
-                    handler.tick();
-                    hud.tick();
+                handler.tick();
+                hud.tick();
+                //later spawns
+                timer++;
+                if (timer > 500) {
+                    timer = 0;
+                    Random random = new Random();
+                    handler.addObject(new Koffing(random.nextInt(0, 1500), random.nextInt(0, 750), ID.Koffing, handler, koffing, makeTransparent, makeMirror));
                 }
             } else {
                 startCountdown.tick();
             }
-        }else if (gameState == STATE.Menu || gameState == STATE.Options){
+
+        } else if (gameState == STATE.Menu || gameState == STATE.Options) {
             menu.tick();
+        } else if (gameState == STATE.Pause || gameState == STATE.OptionsInGame) {
+            pausedMenu.tick();
         }
     }
 
     //render method
     public void render() throws IOException, FontFormatException {
         BufferStrategy bs = this.getBufferStrategy();
-        if(bs == null){
+        if (bs == null) {
             this.createBufferStrategy(3);
             return;
         }
@@ -197,14 +222,16 @@ public class Game extends Canvas implements Runnable {
         Graphics g = bs.getDrawGraphics();
         Graphics2D g2d = (Graphics2D) g;
 
-        Color color = new Color(0,0,0,0);
+        Color color = new Color(0, 0, 0, 0);
         g.setColor(color);
         g.fillRect(0, 0, WIDTH, HEIGHT);
 
         if (gameState == STATE.Level1) {
+            g.clearRect(0,0,1920,1080);
             g.drawImage(background, 0, 0, null);
 
             if (startCountdown.timer >= 260) {
+                inGame = true;
                 handler.render(g);
                 hud.render(g, g2d);
 
@@ -225,13 +252,23 @@ public class Game extends Canvas implements Runnable {
             } else {
                 startCountdown.render(g);
             }
-        }else if (gameState == STATE.Menu || gameState == STATE.Options) {
+        } else if (gameState == STATE.Menu || gameState == STATE.Options) {
             menu.render(g);
+        } else if (gameState == STATE.Pause || gameState == STATE.OptionsInGame || gameState == STATE.PopUp) {
+            if (inGame) {
+                pausedMenu.render(g);
+            }
+            if (gameState == STATE.PopUp){
+                popUpWarning.render(g);
+            }
         }
 
         g.dispose();
         bs.show();
+
     }
+
+
 
     //game loop
     public void run() {
@@ -242,15 +279,15 @@ public class Game extends Canvas implements Runnable {
         double delta = 0;
         long timer = System.currentTimeMillis();
         int frames = 0;
-        while(running){
+        while (running) {
             long now = System.nanoTime();
             delta += (now - lastTime) / ns;
             lastTime = now;
-            while(delta >= 1){
+            while (delta >= 1) {
                 tick();
                 delta--;
             }
-            if(running){
+            if (running) {
                 try {
                     render();
                 } catch (IOException e) {
@@ -261,7 +298,7 @@ public class Game extends Canvas implements Runnable {
             }
             frames++;
 
-            if(System.currentTimeMillis() - timer > 1000){
+            if (System.currentTimeMillis() - timer > 1000) {
                 timer += 1000;
                 System.out.println("FPS: " + frames);
                 frames = 0;
@@ -271,12 +308,12 @@ public class Game extends Canvas implements Runnable {
     }
 
     //clamp method: if the var is at the max, it stays at the max (same with the min)
-    public static float clamp(float var, float min, float max){
-        if(var >= max){
+    public static float clamp(float var, float min, float max) {
+        if (var >= max) {
             return var = max;
-        }else if(var <= min){
+        } else if (var <= min) {
             return var = min;
-        }else{
+        } else {
             return var;
         }
     }
