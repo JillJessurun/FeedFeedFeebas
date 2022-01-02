@@ -7,9 +7,9 @@ public class Popup extends MouseAdapter {
     private Game game;
     private Graphics g;
     private HUD hud;
-    private StartCountdown startCountdown;
+    private Countdown startCountdown;
 
-    public Popup(Game game, HUD hud, StartCountdown startCountdown){
+    public Popup(Game game, HUD hud, Countdown startCountdown){
         this.game = game;
         this.hud = hud;
         this.startCountdown = startCountdown;
@@ -35,7 +35,7 @@ public class Popup extends MouseAdapter {
                 game.inGame = false;
                 game.gameState = Game.STATE.Menu;
                 hud.resetHUD();
-                startCountdown.timer = 0;
+                startCountdown.resetData();
             }else{
                 System.exit(0);
             }
@@ -61,19 +61,12 @@ public class Popup extends MouseAdapter {
     public void render(Graphics g){
         this.g = g;
         Font font = new Font("Arial", Font.BOLD, 50);
-        Font font2 = new Font("Arial", Font.BOLD, 40);
+        Font font2 = new Font("Arial", Font.BOLD, 35);
         Font font3 = new Font("Arial", Font.BOLD, 19);
-        Color color5 = new Color(255, 179, 179, 255);
         Color color6 = new Color(86, 86, 86, 255);
         Graphics2D g2d = (Graphics2D) g;
 
-        //pink popup
-        if (!game.inGame) {
-            g.setColor(Color.lightGray);
-        }else{
-            g.setColor(color5);
-        }
-
+        g.setColor(Color.lightGray);
         g.fillRect(575, 300, 400, 200);
 
         //stroke popup
@@ -93,17 +86,17 @@ public class Popup extends MouseAdapter {
         g2d.setStroke(new BasicStroke(2));
         g.setFont(font2);
         g.setColor(Color.white);
-        g.fillRect(634, 419, 110, 53);
+        //g.fillRect(634, 419, 110, 53);
         g.setColor(Color.black);
         g.drawString("Quit", 646, 460);
-        g2d.drawRect(634, 419, 110, 53);
+        //g2d.drawRect(634, 419, 110, 53);
 
         //text back
         g.setColor(Color.white);
-        g.fillRect(808, 419, 110, 53);
+        //g.fillRect(808, 419, 110, 53);
         g.setColor(Color.black);
         g.drawString("Back", 814, 460);
-        g2d.drawRect(808, 419, 110, 53);
+        //g2d.drawRect(808, 419, 110, 53);
 
     }
 }

@@ -15,6 +15,7 @@ ideas:
 - aftellen zijn cijfers die van klein naar groot gaan
 - enemies hebben verschillende grootte
 - options; save, mute, help
+- bij hoveren over knoppen worden ze iets groter en vaag grijs (en klik handje als dat lukt)
  */
 
 import java.awt.*;
@@ -37,7 +38,7 @@ public class Game extends Canvas implements Runnable {
     private Random random;
     private MakeMirror makeMirror;
     //public boolean gamePaused = false;
-    private StartCountdown startCountdown;
+    private Countdown startCountdown;
     private Menu menu;
     private int timer = 0;
     private PausedMenu pausedMenu;
@@ -152,7 +153,7 @@ public class Game extends Canvas implements Runnable {
         hud = new HUD(this, chansey2, makeTransparent);
         random = new Random();
         makeMirror = new MakeMirror();
-        startCountdown = new StartCountdown();
+        startCountdown = new Countdown();
         menu = new Menu(feebasBG, feebasSprite, makeTransparent, handler, this, feebas, random, steak);
         pausedMenu = new PausedMenu(this);
         popUpWarning = new Popup(this, hud, startCountdown);
