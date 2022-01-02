@@ -1,21 +1,24 @@
 import java.awt.*;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.io.File;
 
 public class Chansey extends GameObject{
     private Handler handler;
     private BufferedImage chansey;
     private MakeTransparent makeTransparent;
     private MakeMirror makeMirror;
+    private HUD hud;
     private boolean right = true;
     private boolean left = false;
 
-    public Chansey(float x, float y, ID id, Handler handler, BufferedImage chansey, MakeTransparent makeTransparent, MakeMirror makeMirror) {
+    public Chansey(float x, float y, ID id, Handler handler, BufferedImage chansey, MakeTransparent makeTransparent, MakeMirror makeMirror, HUD hud) {
         super(x, y, id);
         this.handler = handler;
         this.chansey = chansey;
         this.makeTransparent = makeTransparent;
         this.makeMirror = makeMirror;
+        this.hud = hud;
         velX = 2;
         velY = 1;
     }
@@ -50,6 +53,13 @@ public class Chansey extends GameObject{
             g2d.drawImage(makeMirror.Mirror(transparent), (int) x - 240, (int) y, null);
         }else{
             g2d.drawImage(transparent, (int) x, (int) y, null);
+        }
+
+        if (hud.getCHANSEYRATE() == 1000) {
+            Font font = new Font("arial", Font.BOLD, 60);
+            g2d.setColor(Color.white);
+            g2d.setFont(font);
+            g2d.drawString("!", (int) x + 110, (int) y + 40);
         }
 
         //g2d.setColor(Color.red);

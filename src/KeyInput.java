@@ -61,6 +61,8 @@ public class KeyInput extends KeyAdapter {
                 if (key == KeyEvent.VK_ESCAPE) {
                     if (game.gamePaused){
                         game.gamePaused = false;
+                    }else if (game.gameState == Game.STATE.Level1){
+                        game.gamePaused = true;
                     }else {
                         System.exit(0);
                     }

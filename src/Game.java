@@ -6,9 +6,10 @@ AlphaComposite alphaComposite = AlphaComposite.getInstance(AlphaComposite.SRC_AT
 g2d.setComposite(alphaComposite);
 
 ideas:
-- chansey heal timer with hud
-- als je de enemies raakt komt er een knipperend icoontje in beeld gebaseerd op de soort enemy om je te waarschuwen
--
+- als je de enemies raakt komt er een knipperend icoontje in beeld gebaseerd op de soort enemy om je te informeren
+- icoontje van snelkoppeling aanpassen
+- powerups toevoegen (chansey bar refill, health refill, multiple food spawns, speed power up, enemy freeze, enemy slow)
+- target toevoegen (bepaald aantal food eten) of timer toevoegen (als ie 0 is heb je het level gehaald)
  */
 
 import java.awt.*;
@@ -31,6 +32,16 @@ public class Game extends Canvas implements Runnable {
     private Random random;
     private MakeMirror makeMirror;
     public boolean gamePaused = false;
+    private StartCountdown startCountdown;
+    private Menu menu;
+
+    //pages menu screen
+    public enum STATE {
+        Menu,
+        Options,
+        Level1
+    }
+    public STATE gameState = STATE.Menu;
 
     //images
     private BufferedImage background;
@@ -46,6 +57,7 @@ public class Game extends Canvas implements Runnable {
     public static BufferedImage image4;
 
     private BufferedImage chansey;
+    private BufferedImage chansey2;
     public static BufferedImage image5;
 
     private BufferedImage feebas;
@@ -56,6 +68,12 @@ public class Game extends Canvas implements Runnable {
 
     public BufferedImage grass;
     public static BufferedImage image8;
+
+    public BufferedImage feebasBG;
+    public static BufferedImage image9;
+
+    public BufferedImage feebasSprite;
+    public static BufferedImage image10;
 
     //constructor
     public Game() throws IOException {
@@ -68,7 +86,9 @@ public class Game extends Canvas implements Runnable {
         image5 = loader.loadImage("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Images\\chansey.png");
         image6 = loader.loadImage("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Images\\feebas.png");
         image7 = loader.loadImage("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Images\\steak.png");
-        image8 = loader.loadImage("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Images\\grass.png");
+        image8 = loader.loadImage("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Images\\grass.jpg");
+        image9 = loader.loadImage("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Images\\cliff.jpg");
+        image10 = loader.loadImage("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Images\\feebasSprite.png");
         Image image = new Image(Game.image);
         Image image2 = new Image(Game.image2);
         Image image3 = new Image(Game.image3);
@@ -77,14 +97,19 @@ public class Game extends Canvas implements Runnable {
         Image image6 = new Image(Game.image6);
         Image image7 = new Image(Game.image7);
         Image image8 = new Image(Game.image8);
+        Image image9 = new Image(Game.image9);
+        Image image10 = new Image(Game.image10);
         background = image.grabImage();
         koffing = image2.grabImage();
         voltorb = image3.grabImage();
         glalie = image4.grabImage();
         chansey = image5.grabImage();
+        chansey2 = image5.grabImage();
         feebas = image6.grabImage();
         steak = image7.grabImage();
         grass = image8.grabImage();
+        feebasBG = image9.grabImage();
+        feebasSprite = image10.grabImage();
         //resize images
         grass = image.resizeImage(grass, 200, 200);
         background = image.resizeImage(background, 1920, 1080);
@@ -92,8 +117,11 @@ public class Game extends Canvas implements Runnable {
         voltorb = image.resizeImage(voltorb, 150, 150);
         glalie = image.resizeImage(glalie, 100, 100);
         chansey = image.resizeImage(chansey, 240, 240);
+        chansey2 = image.resizeImage(chansey2, 80, 80);
         feebas = image.resizeImage(feebas, 140, 140);
         steak = image.resizeImage(steak, 60, 60);
+        feebasBG = image.resizeImage(feebasBG, 1920, 1080);
+        feebasSprite = image.resizeImage(feebasSprite, 450, 450);
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         WIDTH = (int)screenSize.getWidth();
@@ -105,23 +133,26 @@ public class Game extends Canvas implements Runnable {
         //create the window
         new Window(WIDTH, HEIGHT, "FeedFeedFeebas!", this);
 
-        //create the handler
+        //create instances
         handler = new Handler();
-        hud = new HUD(this);
         makeTransparent = new MakeTransparent();
+        hud = new HUD(this, chansey2, makeTransparent);
         random = new Random();
         makeMirror = new MakeMirror();
+        startCountdown = new StartCountdown();
+        menu = new Menu(feebasBG, feebasSprite, makeTransparent, handler, this, feebas, random, steak);
 
         Player player1 = new Player(WIDTH/2-32, HEIGHT/2-32, ID.Player, handler, hud, keyInput, feebas, makeTransparent, steak, makeMirror, this);
         handler.addObject(player1);
         handler.addObject(new Voltorb(0, 0, ID.Voltorb, handler, voltorb, makeTransparent, makeMirror));
         handler.addObject(new Koffing(0, 0, ID.Koffing, handler, koffing, makeTransparent, makeMirror));
         handler.addObject(new Glalie(0, 0, ID.Glalie, handler, glalie, makeTransparent, makeMirror));
-        handler.addObject(new Chansey(0, 640, ID.Chansey, handler, chansey, makeTransparent, makeMirror));//y = 785 is on the ground
+        handler.addObject(new Chansey(0, 640, ID.Chansey, handler, chansey, makeTransparent, makeMirror, hud));//y = 785 is on the ground
         handler.addObject(new Food(random.nextInt(0,Game.WIDTH - 20), random.nextInt(0,Game.HEIGHT- 20), ID.Food, handler, makeTransparent, steak));
 
         //listeners for input
         this.addKeyListener(new KeyInput(handler, player1, this));
+        this.addMouseListener(this.menu);
     }
 
     //start thread
@@ -141,9 +172,17 @@ public class Game extends Canvas implements Runnable {
     }
 
     public void tick(){
-        if (!gamePaused) {
-            handler.tick();
-            hud.tick();
+        if (gameState == STATE.Level1) {
+            if (startCountdown.timer >= 260) {
+                if (!gamePaused) {
+                    handler.tick();
+                    hud.tick();
+                }
+            } else {
+                startCountdown.tick();
+            }
+        }else if (gameState == STATE.Menu || gameState == STATE.Options){
+            menu.tick();
         }
     }
 
@@ -162,26 +201,33 @@ public class Game extends Canvas implements Runnable {
         g.setColor(color);
         g.fillRect(0, 0, WIDTH, HEIGHT);
 
-        g.drawImage(background, 0, 0, null);
+        if (gameState == STATE.Level1) {
+            g.drawImage(background, 0, 0, null);
 
-        //render ground
-        int colour = grass.getRGB(0, 0);
-        g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 0, 750, null);
-        g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 200, 750, null);
-        g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 230, 750, null);
-        g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 400, 750, null);
-        g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 500, 750, null);
-        g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 550, 750, null);
-        g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 750, 750, null);
-        g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 865, 750, null);
-        g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 953, 750, null);
-        g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 1000, 750, null);
-        g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 1200, 750, null);
-        g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 1400, 750, null);
+            if (startCountdown.timer >= 260) {
+                handler.render(g);
+                hud.render(g, g2d);
 
-
-        handler.render(g);
-        hud.render(g, g2d);
+                //render ground
+                int colour = grass.getRGB(0, 0);
+                g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 0, 750, null);
+                g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 200, 750, null);
+                g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 230, 750, null);
+                g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 400, 750, null);
+                g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 500, 750, null);
+                g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 550, 750, null);
+                g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 750, 750, null);
+                g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 865, 750, null);
+                g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 953, 750, null);
+                g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 1000, 750, null);
+                g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 1200, 750, null);
+                g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 1400, 750, null);
+            } else {
+                startCountdown.render(g);
+            }
+        }else if (gameState == STATE.Menu || gameState == STATE.Options) {
+            menu.render(g);
+        }
 
         g.dispose();
         bs.show();

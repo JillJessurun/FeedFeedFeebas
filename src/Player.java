@@ -112,7 +112,10 @@ public class Player extends GameObject{
                 }else if (tempObject.getId() == ID.Chansey) {
                     if (getBounds().intersects(tempObject.getBounds())) {
                         //collision code (under here happens when colliding)
-                        hud.setHEALTH(0);
+                        if (hud.getCHANSEYRATE() == 1000) {
+                            hud.setCHANSEYRATE(0);
+                            hud.setHEALTH(0);
+                        }
                     }
                 }else if (tempObject.getId() == ID.Food) {
                     if (getBounds().intersects(tempObject.getBounds())) {
