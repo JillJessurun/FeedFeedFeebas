@@ -19,11 +19,13 @@ public class Menu extends MouseAdapter {
     private Game game;
     private Random random;
     private Image image;
-    private boolean explosion = false;
+    public boolean explosion = false;
     private int timer = 0;
     private int timerAudio = 0;
     public boolean playPressed = false;
     private Countdown countdown;
+    private boolean gameoverAudioStarted = false;
+    private int timer2 = 0;
 
     private float y = 370;
     private float x = 1470;
@@ -99,16 +101,36 @@ public class Menu extends MouseAdapter {
     }
 
     public void stopIngameAudio(){
-        Game.ingameAudio.stopMusic();
+        Game.level1Audio.stopMusic();
     }
 
     public void stopLoadingAudio(){
         Game.loadingAudio.stopMusic();
     }
 
+    public void stopExplosionAudio(){
+        Game.explosionAudio.stopMusic();
+    }
+
+    public void stopGameoverAudio(){
+        Game.gameoverAudio.stopMusic();
+    }
+
+    public void stopFoodAudio(){
+        Game.foodAudio.stopMusic();
+    }
+
     public void tick(){
         if (explosion){
             timer++;
+            if (gameoverAudioStarted) {
+                try {
+                    game.explosionAudio.startMusic();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+                gameoverAudioStarted = false;
+            }
         }
         if (timer > 110){
             timer = 0;
@@ -131,6 +153,13 @@ public class Menu extends MouseAdapter {
             x = 1470;
             y2 = 430;
             x2 = 1470;
+            explosion = false;
+            gameoverAudioStarted = true;
+            try {
+                game.explosionAudio.stopMusic();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }else if (y > 700){
             explosion = true;
         }

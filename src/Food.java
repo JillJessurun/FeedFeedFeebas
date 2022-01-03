@@ -12,12 +12,17 @@ public class Food extends GameObject{
     private Random random;
     private BufferedImage food;
     private MakeTransparent makeTransparent;
+    private Player player;
+    private Game game;
+    public int timer = 0;
 
-    public Food(float x, float y, ID id, Handler handler, MakeTransparent makeTransparent, BufferedImage food) {
+    public Food(float x, float y, ID id, Handler handler, MakeTransparent makeTransparent, BufferedImage food, Player player, Game game) {
         super(x, y, id);
         this.handler = handler;
         this.makeTransparent = makeTransparent;
         this.food = food;
+        this.player = player;
+        this.game = game;
         random = new Random();
 
         velX = random.nextFloat(-1, 1);
@@ -27,6 +32,37 @@ public class Food extends GameObject{
     public void tick() {
         x += velX;
         y += velY;
+
+        if (player.foodEaten){
+            if (!game.foodAudio.hasStarted) {
+                try {
+                    game.foodAudio.startMusic();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }else{
+                try {
+                    game.foodAudio.stopMusic();
+                    game.foodAudio.startMusic();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+            player.foodEaten = false;
+        }
+
+        timer++;
+
+        if (timer >= 80){
+            timer = 0;
+            try {
+                if (game.foodAudio.hasStarted) {
+                    game.foodAudio.stopMusic();
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
 
         if (y <= -15 || y >= Game.HEIGHT - 53){
             velY *= -1;

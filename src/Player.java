@@ -26,6 +26,7 @@ public class Player extends GameObject{
     private int timer2 = 70;
     public boolean right = false;
     public boolean left = false;
+    public boolean foodEaten = false;
 
     public Player(float x, float y, ID id, Handler handler, HUD hud, KeyInput keyInput, BufferedImage feebas, MakeTransparent makeTransparent, BufferedImage food, MakeMirror makeMirror, Game game) {
         super(x, y, id);
@@ -123,7 +124,11 @@ public class Player extends GameObject{
                         hud.setHEALTH(HUD.HEALTH - 800);
                         hud.setEATSCORE(HUD.EATSCORE + 1);
                         handler.removeObject(tempObject);
-                        handler.addObject(new Food(random.nextInt(0,Game.WIDTH - 80), random.nextInt(0,Game.HEIGHT- 80), ID.Food, handler, makeTransparent, food));
+                        foodEaten = true;
+
+                        Food foodClass = new Food(random.nextInt(0,Game.WIDTH - 80), random.nextInt(0,Game.HEIGHT- 80), ID.Food, handler, makeTransparent, food, this, game);
+
+                        handler.addObject(foodClass);
                     }
                 }
             }

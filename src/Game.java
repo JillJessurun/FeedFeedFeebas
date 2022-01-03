@@ -6,17 +6,17 @@ AlphaComposite alphaComposite = AlphaComposite.getInstance(AlphaComposite.SRC_AT
 g2d.setComposite(alphaComposite);
 
 ideas:
-- als je de enemies raakt komt er een knipperend icoontje in beeld gebaseerd op de soort enemy om je te informeren
+- als je de enemies raakt gaat feebas tijdelijk anders eruit zien (onder stroom staan, ziek zijn, bevroren, etc.)
 - icoontje van snelkoppeling aanpassen
 - powerups toevoegen (chansey bar refill, health refill, multiple food spawns, speed power up, enemy freeze, enemy slow)
-- target toevoegen (bepaald aantal food eten) of timer toevoegen (als ie 0 is heb je het level gehaald)
+- target toevoegen (bepaald aantal food eten). Als je de target hebt gehaald kan je wel doorgaan om een goede highscore
+  te behalen. Er komt ook een knop tevoorschijn 'end level'.
 - level systeem
-- geluid! theme song en soundeffects
-- aftellen zijn cijfers die van klein naar groot gaan
+- soundeffects
 - enemies hebben verschillende grootte
-- options; save, mute, help
-- bij hoveren over knoppen worden ze iets groter en vaag grijs (en klik handje als dat lukt)
-- final scores (als het een highscore is) opslaan
+- options; save, mute, help, naam van jouw feebas in kunnen voeren, new game starten
+- bij hoveren over knoppen worden ze iets groter en vaag grijs ofzo
+- highscore + last score opslaan
  */
 
 import java.awt.*;
@@ -38,7 +38,6 @@ public class Game extends Canvas implements Runnable {
     private MakeTransparent makeTransparent;
     private Random random;
     private MakeMirror makeMirror;
-    //public boolean gamePaused = false;
     private Countdown countdown;
     private static Menu menu;
     private int timer = 0;
@@ -47,11 +46,20 @@ public class Game extends Canvas implements Runnable {
     public boolean inGame = false;
     private GameOver gameOver;
     public boolean gameover = false;
-    static Audio mainAudio;
-    static Audio ingameAudio;
-    static Audio loadingAudio;
-    private boolean menuCreated = false;
-    private static boolean audioCreated = false;
+    private boolean menuCreated;
+    private boolean hudCreated;
+    public boolean audioGameoverCreated = false;
+    public boolean audioGameoverTimer = false;
+    private int timer2 = 0 ;
+    private boolean popUpWarningCreated = false;
+
+    //audio
+    public static Audio mainAudio;
+    public static Audio level1Audio;
+    public static Audio loadingAudio;
+    public static Audio gameoverAudio;
+    public static Audio explosionAudio;
+    public static Audio foodAudio;
 
     //pages
     public enum STATE {
@@ -156,10 +164,16 @@ public class Game extends Canvas implements Runnable {
         //create the window
         new Window(WIDTH, HEIGHT, "FeedFeedFeebas!", this);
 
-        //create instances
         handler = new Handler();
+
+        //audio
         mainAudio = new Audio();
-        ingameAudio = new Audio();
+        level1Audio = new Audio();
+        gameoverAudio = new Audio();
+        explosionAudio = new Audio();
+        foodAudio = new Audio();
+
+        //create instances
         loadingAudio = new Audio();
         countdown = new Countdown();
         makeTransparent = new MakeTransparent();
@@ -168,9 +182,11 @@ public class Game extends Canvas implements Runnable {
         menu = new Menu(feebasBG, feebasSprite, makeTransparent, handler, this, feebas, random, steak, countdown);
         hud = new HUD(this, chansey2, makeTransparent, menu);
         this.menuCreated = true;
+        this.hudCreated = true;
         pausedMenu = new PausedMenu(this);
-        popUpWarning = new Popup(this, hud, countdown);
-        gameOver = new GameOver(this, hud, countdown);
+        popUpWarning = new Popup(this, hud, countdown, menu);
+        popUpWarningCreated = true;
+        gameOver = new GameOver(this, hud, countdown, menu);
 
         Player player1 = new Player(WIDTH / 2 - 32, HEIGHT / 2 - 32, ID.Player, handler, hud, keyInput, feebas, makeTransparent, steak, makeMirror, this);
         handler.addObject(player1);
@@ -178,7 +194,7 @@ public class Game extends Canvas implements Runnable {
         handler.addObject(new Koffing(0, 0, ID.Koffing, handler, koffing, makeTransparent, makeMirror));
         handler.addObject(new Glalie(0, 0, ID.Glalie, handler, glalie, makeTransparent, makeMirror));
         handler.addObject(new Chansey(0, 640, ID.Chansey, handler, chansey, makeTransparent, makeMirror, hud));//y = 785 is on the ground
-        handler.addObject(new Food(random.nextInt(0, Game.WIDTH - 20), random.nextInt(0, Game.HEIGHT - 20), ID.Food, handler, makeTransparent, steak));
+        handler.addObject(new Food(random.nextInt(0, Game.WIDTH - 20), random.nextInt(0, Game.HEIGHT - 20), ID.Food, handler, makeTransparent, steak, player1, this));
 
         //listeners for input
         this.addKeyListener(new KeyInput(handler, player1, this));
@@ -205,30 +221,54 @@ public class Game extends Canvas implements Runnable {
     }
 
     public void tick() {
-        if (gameState == STATE.Level1) {
-            if (countdown.timer >= 260) {
-                handler.tick();
-                hud.tick();
-                //later spawns
-                timer++;
-                if (timer > 500) {
-                    timer = 0;
-                    Random random = new Random();
-                    handler.addObject(new Koffing(random.nextInt(0, 1500), random.nextInt(0, 750), ID.Koffing, handler, koffing, makeTransparent, makeMirror));
+        if (hudCreated && menuCreated) {
+            if (gameState == STATE.Level1) {
+                if (countdown.timer >= 260) {
+                    handler.tick();
+                    hud.tick();
+                    //later spawns
+                    timer++;
+                    if (timer > 500) {
+                        timer = 0;
+                        Random random = new Random();
+                        handler.addObject(new Koffing(random.nextInt(0, 1500), random.nextInt(0, 750), ID.Koffing, handler, koffing, makeTransparent, makeMirror));
+                    }
+                } else {
+                    countdown.tick();
                 }
-            } else {
-                countdown.tick();
-            }
 
-        } else if (gameState == STATE.Menu || gameState == STATE.Options) {
-            if (menuCreated) {
+            } else if (gameState == STATE.Menu || gameState == STATE.Options) {
                 menu.tick();
+            } else if (gameState == STATE.Pause || gameState == STATE.OptionsInGame) {
+                pausedMenu.tick();
+            } else if (hud.getHEALTH() > 10000) {
+                gameState = STATE.GameOver;
+                gameOver.tick();
+
+                //audio
+                if (audioGameoverCreated) {
+                    try {
+                        level1Audio.stopMusic();
+                        gameoverAudio.startMusic();
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                    audioGameoverCreated = false;
+                }
+
+                if (audioGameoverTimer) {
+                    timer2++;
+                    if (timer2 == 69) {
+                        timer2 = 0;
+                        audioGameoverTimer = false;
+                        try {
+                            gameoverAudio.stopMusic();
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                }
             }
-        } else if (gameState == STATE.Pause || gameState == STATE.OptionsInGame) {
-            pausedMenu.tick();
-        } else if(hud.getHEALTH() > 10000){
-            gameState = STATE.GameOver;
-            gameOver.tick();
         }
     }
 
@@ -247,51 +287,53 @@ public class Game extends Canvas implements Runnable {
         g.setColor(color);
         g.fillRect(0, 0, WIDTH, HEIGHT);
 
-        if (gameState == STATE.Level1) {
-            g.clearRect(0,0,1920,1080);
-            g.drawImage(background, 0, 0, null);
+        if (hudCreated && menuCreated) {
+            if (gameState == STATE.Level1) {
+                g.clearRect(0, 0, 1920, 1080);
+                g.drawImage(background, 0, 0, null);
 
-            if (countdown.timer >= 260) {
-                inGame = true;
-                handler.render(g);
-                hud.render(g, g2d);
+                if (countdown.timer >= 260) {
+                    inGame = true;
+                    handler.render(g);
+                    hud.render(g, g2d);
 
-                //render ground
-                int colour = grass.getRGB(0, 0);
-                g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 0, 750, null);
-                g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 200, 750, null);
-                g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 230, 750, null);
-                g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 400, 750, null);
-                g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 500, 750, null);
-                g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 550, 750, null);
-                g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 750, 750, null);
-                g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 865, 750, null);
-                g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 953, 750, null);
-                g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 1000, 750, null);
-                g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 1200, 750, null);
-                g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 1400, 750, null);
-            } else {
-                countdown.render(g);
-            }
-        } else if (gameState == STATE.Menu || gameState == STATE.Options) {
-            if (menuCreated) {
+                    //render ground
+                    int colour = grass.getRGB(0, 0);
+                    g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 0, 750, null);
+                    g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 200, 750, null);
+                    g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 230, 750, null);
+                    g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 400, 750, null);
+                    g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 500, 750, null);
+                    g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 550, 750, null);
+                    g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 750, 750, null);
+                    g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 865, 750, null);
+                    g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 953, 750, null);
+                    g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 1000, 750, null);
+                    g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 1200, 750, null);
+                    g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 1400, 750, null);
+                } else {
+                    countdown.render(g);
+                }
+            } else if (gameState == STATE.Menu || gameState == STATE.Options) {
                 menu.render(g);
+            } else if (gameState == STATE.Pause || gameState == STATE.OptionsInGame || gameState == STATE.PopUp) {
+                if (inGame) {
+                    pausedMenu.render(g);
+                }
+                if (gameState == STATE.PopUp) {
+                    if (popUpWarningCreated) {
+                        popUpWarning.render(g);
+                    }
+                }
             }
-        } else if (gameState == STATE.Pause || gameState == STATE.OptionsInGame || gameState == STATE.PopUp) {
-            if (inGame) {
-                pausedMenu.render(g);
+            if (hud.getHEALTH() > 10000) {
+                gameState = STATE.GameOver;
+                gameOver.render(g);
             }
-            if (gameState == STATE.PopUp){
-                popUpWarning.render(g);
-            }
-        }
-        if(hud.getHEALTH() > 10000){
-            gameState = STATE.GameOver;
-            gameOver.render(g);
-        }
 
-        g.dispose();
-        bs.show();
+            g.dispose();
+            bs.show();
+        }
 
     }
 
@@ -348,11 +390,16 @@ public class Game extends Canvas implements Runnable {
     //main
     public static void main(String[] args) throws IOException {
         new Game();
-
         mainAudio.playMusic("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Audio\\fastbeat.wav");
-        ingameAudio.playMusic("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Audio\\technoBeat.wav");
+        level1Audio.playMusic("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Audio\\level1.wav");
         loadingAudio.playMusic("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Audio\\synth.wav");
+        gameoverAudio.playMusic("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Audio\\gameover.wav");
+        explosionAudio.playMusic("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Audio\\explosion.wav");
+        foodAudio.playMusic("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Audio\\eating.wav");
         menu.stopIngameAudio();
         menu.stopLoadingAudio();
+        menu.stopGameoverAudio();
+        menu.stopExplosionAudio();
+        menu.stopFoodAudio();
     }
 }

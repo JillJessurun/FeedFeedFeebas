@@ -1,5 +1,4 @@
 import java.awt.*;
-import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -30,7 +29,7 @@ public class HUD {
         if (menu.playPressed) {
             try {
                 game.loadingAudio.stopMusic();
-                game.ingameAudio.startMusic();
+                game.level1Audio.startMusic();
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -136,6 +135,8 @@ public class HUD {
         }else{
             g.setColor(Color.red);
             g.drawString("-  DEAD  -", 560, 62);
+            game.audioGameoverCreated = true;
+            game.audioGameoverTimer = true;
             game.gameover = true;
         }
     }

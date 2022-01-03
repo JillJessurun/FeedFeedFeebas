@@ -9,11 +9,13 @@ public class GameOver extends MouseAdapter {
     private Game game;
     private HUD hud;
     private Countdown countdown;
+    private Menu menu;
 
-    public GameOver(Game game, HUD hud, Countdown countdown){
+    public GameOver(Game game, HUD hud, Countdown countdown, Menu menu){
         this.game = game;
         this.hud = hud;
         this.countdown = countdown;
+        this.menu = menu;
     }
 
     public void mousePressed(MouseEvent e) {
@@ -27,9 +29,9 @@ public class GameOver extends MouseAdapter {
             hud.resetHUD();
             countdown.resetData();
             game.gameover = false;
-
+            menu.explosion = false;
             try {
-                game.ingameAudio.stopMusic();
+                game.gameoverAudio.stopMusic();
                 game.mainAudio.startMusic();
             } catch (Exception ex) {
                 ex.printStackTrace();

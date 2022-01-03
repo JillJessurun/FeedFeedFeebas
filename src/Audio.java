@@ -5,41 +5,41 @@ import java.io.IOException;
 public class Audio {
     File musicPath;
     Clip clip;
+    public boolean hasStarted;
 
-    void startMusic() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+    public void startMusic() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
         AudioInputStream audioInput = AudioSystem.getAudioInputStream(musicPath);
         clip = AudioSystem.getClip();
         clip.open(audioInput);
         clip.start();
+        hasStarted = true;
         clip.loop(Clip.LOOP_CONTINUOUSLY);
     }
 
-    void stopMusic(){
+    public void stopMusic() {
         clip.stop();
         clip.close();
+        hasStarted = false;
     }
 
-    void playMusic(String musicLocation){
+    public void playMusic(String musicLocation) {
 
-        try{
+        try {
 
             musicPath = new File(musicLocation);
 
-            if(musicPath.exists()){
+            if (musicPath.exists()) {
                 AudioInputStream audioInput = AudioSystem.getAudioInputStream(musicPath);
                 clip = AudioSystem.getClip();
                 clip.open(audioInput);
                 clip.start();
                 clip.loop(Clip.LOOP_CONTINUOUSLY);
 
-                //JOptionPane.showMessageDialog(null,"Hit ok to pauze");
-                //clip.stop();
-
-            }else{
+            } else {
                 System.out.println("Cannot find file");
             }
 
-        }catch(Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
 

@@ -8,11 +8,13 @@ public class Popup extends MouseAdapter {
     private Graphics g;
     private HUD hud;
     private Countdown startCountdown;
+    private Menu menu;
 
-    public Popup(Game game, HUD hud, Countdown startCountdown){
+    public Popup(Game game, HUD hud, Countdown startCountdown, Menu menu){
         this.game = game;
         this.hud = hud;
         this.startCountdown = startCountdown;
+        this.menu = menu;
     }
 
     public void mousePressed(MouseEvent e){
@@ -34,12 +36,13 @@ public class Popup extends MouseAdapter {
                 g.clearRect(0, 0, 1920, 1080);
                 game.inGame = false;
                 game.gameState = Game.STATE.Menu;
+                menu.explosion = false;
                 hud.resetHUD();
                 startCountdown.resetData();
 
                 //audio
                 try {
-                    game.ingameAudio.stopMusic();
+                    game.level1Audio.stopMusic();
                     game.mainAudio.startMusic();
                 } catch (Exception ex) {
                     ex.printStackTrace();
