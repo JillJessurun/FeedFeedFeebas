@@ -21,6 +21,9 @@ public class Menu extends MouseAdapter {
     private Image image;
     private boolean explosion = false;
     private int timer = 0;
+    private int timerAudio = 0;
+    public boolean playPressed = false;
+    private Countdown countdown;
 
     private float y = 370;
     private float x = 1470;
@@ -29,7 +32,7 @@ public class Menu extends MouseAdapter {
     private float x2 = 1470;
 
     public Menu(BufferedImage feebasBG, BufferedImage feebasSprite, MakeTransparent makeTransparent,
-                Handler handler, Game game, BufferedImage feebasMoving, Random random, BufferedImage food){
+                Handler handler, Game game, BufferedImage feebasMoving, Random random, BufferedImage food, Countdown countdown){
         this.feebasBG = feebasBG;
         this.feebasSprite = feebasSprite;
         this.makeTransparent = makeTransparent;
@@ -39,6 +42,7 @@ public class Menu extends MouseAdapter {
         this.feebasMoving2 = feebasMoving;
         this.random = random;
         this.food = food;
+        this.countdown = countdown;
 
         image = Toolkit.getDefaultToolkit().createImage("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Images\\explosion.gif");
     }
@@ -50,6 +54,19 @@ public class Menu extends MouseAdapter {
         //play button
         if (mouseOver(mx, my, 238, 325, 105, 53) && game.gameState == Game.STATE.Menu){
             game.gameState = Game.STATE.Level1;
+
+            Image newimage = Toolkit.getDefaultToolkit().createImage("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Images\\steak.gif");
+            Image newimage2 = Toolkit.getDefaultToolkit().createImage("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Images\\loading.gif");
+            countdown.setImage3(newimage);
+            countdown.setImage2(newimage2);
+
+            playPressed = true;
+            try {
+                game.mainAudio.stopMusic();
+                game.loadingAudio.startMusic();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
 
         //options button
@@ -79,6 +96,14 @@ public class Menu extends MouseAdapter {
         }else{
             return false;
         }
+    }
+
+    public void stopIngameAudio(){
+        Game.ingameAudio.stopMusic();
+    }
+
+    public void stopLoadingAudio(){
+        Game.loadingAudio.stopMusic();
     }
 
     public void tick(){

@@ -36,6 +36,14 @@ public class Popup extends MouseAdapter {
                 game.gameState = Game.STATE.Menu;
                 hud.resetHUD();
                 startCountdown.resetData();
+
+                //audio
+                try {
+                    game.ingameAudio.stopMusic();
+                    game.mainAudio.startMusic();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
             }else{
                 System.exit(0);
             }
@@ -71,21 +79,21 @@ public class Popup extends MouseAdapter {
 
         //stroke popup
         g.setColor(Color.black);
-        g2d.setStroke(new BasicStroke(4));
+        g2d.setStroke(new BasicStroke(2));
         g2d.drawRect(575, 300, 400, 200);
 
         //text popup
         g.setFont(font);
         g.setColor(Color.black);
         g.drawString("Are you sure?", 610, 370);
-        g.setFont(font3);
-        g.setColor(color6);
-        g.drawString("~ unsaved progress will be lost ~", 624, 400);
+        //g.setFont(font3);
+        //g.setColor(color6);
+        //g.drawString("~ unsaved progress will be lost ~", 624, 400);
 
         //text quit
-        g2d.setStroke(new BasicStroke(2));
+        //g2d.setStroke(new BasicStroke(2));
         g.setFont(font2);
-        g.setColor(Color.white);
+        //g.setColor(Color.white);
         //g.fillRect(634, 419, 110, 53);
         g.setColor(Color.black);
         g.drawString("Quit", 646, 460);

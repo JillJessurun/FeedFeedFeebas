@@ -16,6 +16,7 @@ ideas:
 - enemies hebben verschillende grootte
 - options; save, mute, help
 - bij hoveren over knoppen worden ze iets groter en vaag grijs (en klik handje als dat lukt)
+- final scores (als het een highscore is) opslaan
  */
 
 import java.awt.*;
@@ -38,20 +39,28 @@ public class Game extends Canvas implements Runnable {
     private Random random;
     private MakeMirror makeMirror;
     //public boolean gamePaused = false;
-    private Countdown startCountdown;
-    private Menu menu;
+    private Countdown countdown;
+    private static Menu menu;
     private int timer = 0;
     private PausedMenu pausedMenu;
     private Popup popUpWarning;
     public boolean inGame = false;
+    private GameOver gameOver;
+    public boolean gameover = false;
+    static Audio mainAudio;
+    static Audio ingameAudio;
+    static Audio loadingAudio;
+    private boolean menuCreated = false;
+    private static boolean audioCreated = false;
 
-    //pages menu screen
+    //pages
     public enum STATE {
         Menu,
         Options,
         Pause,
         OptionsInGame,
         PopUp,
+        GameOver,
         Level1
     }
 
@@ -149,14 +158,19 @@ public class Game extends Canvas implements Runnable {
 
         //create instances
         handler = new Handler();
+        mainAudio = new Audio();
+        ingameAudio = new Audio();
+        loadingAudio = new Audio();
+        countdown = new Countdown();
         makeTransparent = new MakeTransparent();
-        hud = new HUD(this, chansey2, makeTransparent);
         random = new Random();
         makeMirror = new MakeMirror();
-        startCountdown = new Countdown();
-        menu = new Menu(feebasBG, feebasSprite, makeTransparent, handler, this, feebas, random, steak);
+        menu = new Menu(feebasBG, feebasSprite, makeTransparent, handler, this, feebas, random, steak, countdown);
+        hud = new HUD(this, chansey2, makeTransparent, menu);
+        this.menuCreated = true;
         pausedMenu = new PausedMenu(this);
-        popUpWarning = new Popup(this, hud, startCountdown);
+        popUpWarning = new Popup(this, hud, countdown);
+        gameOver = new GameOver(this, hud, countdown);
 
         Player player1 = new Player(WIDTH / 2 - 32, HEIGHT / 2 - 32, ID.Player, handler, hud, keyInput, feebas, makeTransparent, steak, makeMirror, this);
         handler.addObject(player1);
@@ -171,6 +185,7 @@ public class Game extends Canvas implements Runnable {
         this.addMouseListener(this.menu);
         this.addMouseListener(this.pausedMenu);
         this.addMouseListener(this.popUpWarning);
+        this.addMouseListener(this.gameOver);
     }
 
     //start thread
@@ -191,7 +206,7 @@ public class Game extends Canvas implements Runnable {
 
     public void tick() {
         if (gameState == STATE.Level1) {
-            if (startCountdown.timer >= 260) {
+            if (countdown.timer >= 260) {
                 handler.tick();
                 hud.tick();
                 //later spawns
@@ -202,13 +217,18 @@ public class Game extends Canvas implements Runnable {
                     handler.addObject(new Koffing(random.nextInt(0, 1500), random.nextInt(0, 750), ID.Koffing, handler, koffing, makeTransparent, makeMirror));
                 }
             } else {
-                startCountdown.tick();
+                countdown.tick();
             }
 
         } else if (gameState == STATE.Menu || gameState == STATE.Options) {
-            menu.tick();
+            if (menuCreated) {
+                menu.tick();
+            }
         } else if (gameState == STATE.Pause || gameState == STATE.OptionsInGame) {
             pausedMenu.tick();
+        } else if(hud.getHEALTH() > 10000){
+            gameState = STATE.GameOver;
+            gameOver.tick();
         }
     }
 
@@ -231,7 +251,7 @@ public class Game extends Canvas implements Runnable {
             g.clearRect(0,0,1920,1080);
             g.drawImage(background, 0, 0, null);
 
-            if (startCountdown.timer >= 260) {
+            if (countdown.timer >= 260) {
                 inGame = true;
                 handler.render(g);
                 hud.render(g, g2d);
@@ -251,10 +271,12 @@ public class Game extends Canvas implements Runnable {
                 g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 1200, 750, null);
                 g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 1400, 750, null);
             } else {
-                startCountdown.render(g);
+                countdown.render(g);
             }
         } else if (gameState == STATE.Menu || gameState == STATE.Options) {
-            menu.render(g);
+            if (menuCreated) {
+                menu.render(g);
+            }
         } else if (gameState == STATE.Pause || gameState == STATE.OptionsInGame || gameState == STATE.PopUp) {
             if (inGame) {
                 pausedMenu.render(g);
@@ -262,6 +284,10 @@ public class Game extends Canvas implements Runnable {
             if (gameState == STATE.PopUp){
                 popUpWarning.render(g);
             }
+        }
+        if(hud.getHEALTH() > 10000){
+            gameState = STATE.GameOver;
+            gameOver.render(g);
         }
 
         g.dispose();
@@ -322,5 +348,11 @@ public class Game extends Canvas implements Runnable {
     //main
     public static void main(String[] args) throws IOException {
         new Game();
+
+        mainAudio.playMusic("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Audio\\fastbeat.wav");
+        ingameAudio.playMusic("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Audio\\technoBeat.wav");
+        loadingAudio.playMusic("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Audio\\synth.wav");
+        menu.stopIngameAudio();
+        menu.stopLoadingAudio();
     }
 }

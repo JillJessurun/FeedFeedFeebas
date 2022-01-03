@@ -16,14 +16,27 @@ public class HUD {
     private int chanseytimer = 0;
     private boolean chanseyGreen = false;
     private MakeTransparent makeTransparent;
+    private Menu menu;
 
-    public HUD(Game game, BufferedImage chansey, MakeTransparent makeTransparent){
+    public HUD(Game game, BufferedImage chansey, MakeTransparent makeTransparent, Menu menu){
         this.game = game;
         this.chansey = chansey;
         this.makeTransparent = makeTransparent;
+        this.menu = menu;
     }
 
     public void tick(){
+        //audio
+        if (menu.playPressed) {
+            try {
+                game.loadingAudio.stopMusic();
+                game.ingameAudio.startMusic();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            menu.playPressed = false;
+        }
+
         HEALTH = (int)Game.clamp(HEALTH, 0, 10000);
         if (!koffingHit) {
             HEALTH = HEALTH + 5;
@@ -123,6 +136,7 @@ public class HUD {
         }else{
             g.setColor(Color.red);
             g.drawString("-  DEAD  -", 560, 62);
+            game.gameover = true;
         }
     }
 
@@ -132,6 +146,10 @@ public class HUD {
 
     public void setHEALTH(int newHEALTH) {
         HEALTH = newHEALTH;
+    }
+
+    public int getHEALTH() {
+        return HEALTH;
     }
 
     public void setCHANSEYRATE(int newCHANSEYRATE){CHANSEYRATE = newCHANSEYRATE;}
@@ -158,6 +176,10 @@ public class HUD {
 
     public void setChanseyGreen(boolean chanseyGreen) {
         this.chanseyGreen = chanseyGreen;
+    }
+
+    public int getEATSCORE() {
+        return EATSCORE;
     }
 
     public void resetHUD(){

@@ -18,22 +18,22 @@ public class PausedMenu extends MouseAdapter {
         int my = e.getY();
 
         //continue button in game pause
-        if (mouseOver(mx, my, 665, 365, 200, 53) && game.gameState == Game.STATE.Pause){
+        if (mouseOver(mx, my, 665, 365, 200, 53) && game.gameState == Game.STATE.Pause && game.inGame && !game.gameover){
             game.gameState = Game.STATE.Level1;
         }
 
         //options button in game pause
-        if (mouseOver(mx, my, 675, 505, 175, 53) && !inOptions){
+        if (mouseOver(mx, my, 675, 505, 175, 53) && !inOptions && game.inGame && !game.gameover){
             game.gameState = Game.STATE.OptionsInGame;
         }
 
         //back button in game options
-        if (mouseOver(mx, my, 705, 645, 110, 53) && inOptions){
+        if (mouseOver(mx, my, 705, 645, 110, 53) && inOptions && game.inGame && !game.gameover){
             game.gameState = Game.STATE.Pause;
         }
 
         //quit button in game pause
-        if (mouseOver(mx, my, 705, 645, 110, 53) && !inOptions){
+        if (mouseOver(mx, my, 705, 645, 110, 53) && !inOptions && game.inGame && !game.gameover){
             game.gameState = Game.STATE.PopUp;
         }
     }
@@ -72,7 +72,7 @@ public class PausedMenu extends MouseAdapter {
         Graphics2D g2d = (Graphics2D) g;
 
         Color color1 = new Color(0, 225, 255);
-        Color color2 = new Color(49, 48, 49, 4);
+        Color color2 = new Color(236, 0, 255, 1);
         Color color4 = new Color(255, 0, 204);
         Color color5 = new Color(28, 0, 100, 255);
 
@@ -84,8 +84,8 @@ public class PausedMenu extends MouseAdapter {
         g.setColor(color5);
         g.fillRect(450, 100, 650, 675);
         g.setColor(Color.black);
-        g2d.setStroke(new BasicStroke(10));
-        g2d.drawRect(450, 100, 650, 675);
+        //g2d.setStroke(new BasicStroke(10));
+        //g2d.drawRect(450, 100, 650, 675);
 
         g.setColor(color1);
         g.drawString("PAUSED", 560, 250);
