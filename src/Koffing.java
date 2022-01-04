@@ -5,13 +5,14 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ImageFilter;
 import java.awt.image.RGBImageFilter;
 import java.awt.image.WritableRaster;
+import java.util.Random;
 
 public class Koffing extends GameObject{
-
     private Handler handler;
     private BufferedImage koffing;
     private MakeTransparent makeTransparent;
     private MakeMirror makeMirror;
+    private Random random;
     private boolean right = true;
     private boolean left = false;
 
@@ -21,11 +22,14 @@ public class Koffing extends GameObject{
         this.koffing = koffing;
         this.makeTransparent = makeTransparent;
         this.makeMirror = makeMirror;
-        velX = 3;
-        velY = 2;
+        random = new Random();
+
+        velX = random.nextFloat(-3, 3);
+        velY = random.nextFloat(-3, 3);
     }
 
     public void tick() {
+
         x += velX;
         y += velY;
 
@@ -42,6 +46,7 @@ public class Koffing extends GameObject{
                 left = false;
             }
         }
+
     }
 
     public void render(Graphics g) {

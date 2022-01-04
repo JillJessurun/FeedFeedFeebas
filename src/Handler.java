@@ -25,4 +25,15 @@ public class Handler {
     public void removeObject(GameObject object){
         this.object.remove(object);
     }
+
+    public LinkedList<GameObject> getListWithoutEnemies(LinkedList<GameObject> oldList){
+        LinkedList<GameObject> newList = new LinkedList<GameObject>();
+        for (int i = 0; i < oldList.size(); i++) {
+            GameObject tempObject = this.object.get(i);
+            if (tempObject.getId() == ID.Chansey || tempObject.getId() == ID.Player || tempObject.getId() == ID.Food) {
+                newList.add(tempObject);
+            }
+        }
+        return newList;
+    }
 }

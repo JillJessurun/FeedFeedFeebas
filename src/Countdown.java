@@ -14,7 +14,7 @@ public class Countdown {
     public Image image3;
 
     //x axes per text
-    private static float xFF = 455;
+    private static float xFF = 450;
 
     //booleans
     private static boolean feedFeebas = false;
@@ -48,7 +48,7 @@ public class Countdown {
         ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Fonts\\pokemon.ttf")));
 
         g.setFont(pokemonFont);
-        Color color = new Color(0, 8, 28);
+        Color color = new Color(112, 10, 10);
         g.setColor(color);
 
         if (timer >= 0 && timer < 100){

@@ -54,4 +54,11 @@ public abstract class GameObject {
     public void setVelY(float velY) {
         this.velY = velY;
     }
+
+    @Override
+    public String toString() {
+        return "GameObject{" +
+                "id=" + id +
+                '}';
+    }
 }

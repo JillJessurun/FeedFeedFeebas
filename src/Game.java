@@ -1,5 +1,10 @@
-//stap 63
 /*
+author: Jill Jessurun
+date: december 2021 - januari 2022
+
+techno music site:
+https://pixabay.com/music/search/genre/techno%20&%20trance/
+
 images transparant maken:
 Graphics2D g2d = (Graphics2D) g;
 AlphaComposite alphaComposite = AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, 0.2f);
@@ -17,7 +22,9 @@ ideas:
 - options; save, mute, help, naam van jouw feebas in kunnen voeren, new game starten
 - bij hoveren over knoppen worden ze iets groter en vaag grijs ofzo
 - highscore + last score opslaan
- */
+- render probleem oplossen dat objecten niet weggaan als ze bewegen maar blijven renderen (onder de achtergrond)
+- bij pauzeren zorgen dat de health bar niet helemaal vult
+*/
 
 import java.awt.*;
 import java.awt.image.BufferStrategy;
@@ -26,7 +33,6 @@ import java.io.IOException;
 import java.util.Random;
 
 public class Game extends Canvas implements Runnable {
-
     public static int WIDTH = 150;
     public static int HEIGHT = 80;
     private Thread thread;
@@ -40,7 +46,7 @@ public class Game extends Canvas implements Runnable {
     private MakeMirror makeMirror;
     private Countdown countdown;
     private static Menu menu;
-    private int timer = 0;
+    public int timer = 0;
     private PausedMenu pausedMenu;
     private Popup popUpWarning;
     public boolean inGame = false;
@@ -52,13 +58,14 @@ public class Game extends Canvas implements Runnable {
     public boolean audioGameoverTimer = false;
     private int timer2 = 0 ;
     private boolean popUpWarningCreated = false;
+    public boolean gameStarted = false;
+    public boolean removedAllObjects = false;
 
     //audio
     public static Audio mainAudio;
     public static Audio level1Audio;
     public static Audio loadingAudio;
     public static Audio gameoverAudio;
-    public static Audio explosionAudio;
     public static Audio foodAudio;
 
     //pages
@@ -170,7 +177,6 @@ public class Game extends Canvas implements Runnable {
         mainAudio = new Audio();
         level1Audio = new Audio();
         gameoverAudio = new Audio();
-        explosionAudio = new Audio();
         foodAudio = new Audio();
 
         //create instances
@@ -184,17 +190,14 @@ public class Game extends Canvas implements Runnable {
         this.menuCreated = true;
         this.hudCreated = true;
         pausedMenu = new PausedMenu(this);
-        popUpWarning = new Popup(this, hud, countdown, menu);
+        popUpWarning = new Popup(this, hud, countdown, menu, handler);
         popUpWarningCreated = true;
-        gameOver = new GameOver(this, hud, countdown, menu);
+        gameOver = new GameOver(this, hud, countdown, menu, handler);
 
         Player player1 = new Player(WIDTH / 2 - 32, HEIGHT / 2 - 32, ID.Player, handler, hud, keyInput, feebas, makeTransparent, steak, makeMirror, this);
         handler.addObject(player1);
-        handler.addObject(new Voltorb(0, 0, ID.Voltorb, handler, voltorb, makeTransparent, makeMirror));
-        handler.addObject(new Koffing(0, 0, ID.Koffing, handler, koffing, makeTransparent, makeMirror));
-        handler.addObject(new Glalie(0, 0, ID.Glalie, handler, glalie, makeTransparent, makeMirror));
-        handler.addObject(new Chansey(0, 640, ID.Chansey, handler, chansey, makeTransparent, makeMirror, hud));//y = 785 is on the ground
         handler.addObject(new Food(random.nextInt(0, Game.WIDTH - 20), random.nextInt(0, Game.HEIGHT - 20), ID.Food, handler, makeTransparent, steak, player1, this));
+        handler.addObject(new Chansey(0, 640, ID.Chansey, handler, chansey, makeTransparent, makeMirror, hud));
 
         //listeners for input
         this.addKeyListener(new KeyInput(handler, player1, this));
@@ -221,6 +224,17 @@ public class Game extends Canvas implements Runnable {
     }
 
     public void tick() {
+        if (gameStarted) {
+            Random random1 = new Random();
+            Random random2 = new Random();
+            Random random3 = new Random();
+            handler.addObject(new Voltorb(random1.nextInt(0, 1500), random1.nextInt(0, 750), ID.Voltorb, handler, voltorb, makeTransparent, makeMirror));
+            handler.addObject(new Koffing(random2.nextInt(0, 1500), random2.nextInt(0, 750), ID.Koffing, handler, koffing, makeTransparent, makeMirror));
+            handler.addObject(new Glalie(random3.nextInt(0, 1500), random3.nextInt(0, 750), ID.Glalie, handler, glalie, makeTransparent, makeMirror));
+            gameStarted = false;
+            timer = 0;
+        }
+
         if (hudCreated && menuCreated) {
             if (gameState == STATE.Level1) {
                 if (countdown.timer >= 260) {
@@ -228,7 +242,8 @@ public class Game extends Canvas implements Runnable {
                     hud.tick();
                     //later spawns
                     timer++;
-                    if (timer > 500) {
+                    if (timer > 400) {
+                        //add a koffing
                         timer = 0;
                         Random random = new Random();
                         handler.addObject(new Koffing(random.nextInt(0, 1500), random.nextInt(0, 750), ID.Koffing, handler, koffing, makeTransparent, makeMirror));
@@ -387,6 +402,10 @@ public class Game extends Canvas implements Runnable {
         }
     }
 
+    public static void resetData(){
+
+    }
+
     //main
     public static void main(String[] args) throws IOException {
         new Game();
@@ -394,12 +413,10 @@ public class Game extends Canvas implements Runnable {
         level1Audio.playMusic("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Audio\\level1.wav");
         loadingAudio.playMusic("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Audio\\synth.wav");
         gameoverAudio.playMusic("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Audio\\gameover.wav");
-        explosionAudio.playMusic("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Audio\\explosion.wav");
         foodAudio.playMusic("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Audio\\eating.wav");
         menu.stopIngameAudio();
         menu.stopLoadingAudio();
         menu.stopGameoverAudio();
-        menu.stopExplosionAudio();
         menu.stopFoodAudio();
     }
 }

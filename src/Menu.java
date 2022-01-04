@@ -63,6 +63,7 @@ public class Menu extends MouseAdapter {
             countdown.setImage2(newimage2);
 
             playPressed = true;
+            game.gameStarted = true;
             try {
                 game.mainAudio.stopMusic();
                 game.loadingAudio.startMusic();
@@ -108,10 +109,6 @@ public class Menu extends MouseAdapter {
         Game.loadingAudio.stopMusic();
     }
 
-    public void stopExplosionAudio(){
-        Game.explosionAudio.stopMusic();
-    }
-
     public void stopGameoverAudio(){
         Game.gameoverAudio.stopMusic();
     }
@@ -124,11 +121,6 @@ public class Menu extends MouseAdapter {
         if (explosion){
             timer++;
             if (gameoverAudioStarted) {
-                try {
-                    game.explosionAudio.startMusic();
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
                 gameoverAudioStarted = false;
             }
         }
@@ -155,11 +147,6 @@ public class Menu extends MouseAdapter {
             x2 = 1470;
             explosion = false;
             gameoverAudioStarted = true;
-            try {
-                game.explosionAudio.stopMusic();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
         }else if (y > 700){
             explosion = true;
         }

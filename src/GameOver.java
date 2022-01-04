@@ -10,12 +10,14 @@ public class GameOver extends MouseAdapter {
     private HUD hud;
     private Countdown countdown;
     private Menu menu;
+    private Handler handler;
 
-    public GameOver(Game game, HUD hud, Countdown countdown, Menu menu){
+    public GameOver(Game game, HUD hud, Countdown countdown, Menu menu, Handler handler){
         this.game = game;
         this.hud = hud;
         this.countdown = countdown;
         this.menu = menu;
+        this.handler = handler;
     }
 
     public void mousePressed(MouseEvent e) {
@@ -30,6 +32,13 @@ public class GameOver extends MouseAdapter {
             countdown.resetData();
             game.gameover = false;
             menu.explosion = false;
+            game.removedAllObjects = false;
+            game.timer = 0;
+            game.gameStarted = false;
+
+            //remove all enemies
+            handler.object = handler.getListWithoutEnemies(handler.object);
+
             try {
                 game.gameoverAudio.stopMusic();
                 game.mainAudio.startMusic();

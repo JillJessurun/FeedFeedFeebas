@@ -9,12 +9,14 @@ public class Popup extends MouseAdapter {
     private HUD hud;
     private Countdown startCountdown;
     private Menu menu;
+    private Handler handler;
 
-    public Popup(Game game, HUD hud, Countdown startCountdown, Menu menu){
+    public Popup(Game game, HUD hud, Countdown startCountdown, Menu menu, Handler handler){
         this.game = game;
         this.hud = hud;
         this.startCountdown = startCountdown;
         this.menu = menu;
+        this.handler = handler;
     }
 
     public void mousePressed(MouseEvent e){
@@ -39,6 +41,12 @@ public class Popup extends MouseAdapter {
                 menu.explosion = false;
                 hud.resetHUD();
                 startCountdown.resetData();
+                game.removedAllObjects = false;
+                game.timer = 0;
+                game.gameStarted = false;
+
+                //remove all enemies
+                handler.object = handler.getListWithoutEnemies(handler.object);
 
                 //audio
                 try {

@@ -28,6 +28,11 @@ public class Player extends GameObject{
     public boolean left = false;
     public boolean foodEaten = false;
 
+    //gifs enemy attacks
+    private Image electricity;
+    private Image ice;
+    private Image poison;
+
     public Player(float x, float y, ID id, Handler handler, HUD hud, KeyInput keyInput, BufferedImage feebas, MakeTransparent makeTransparent, BufferedImage food, MakeMirror makeMirror, Game game) {
         super(x, y, id);
         this.handler = handler;
@@ -40,6 +45,10 @@ public class Player extends GameObject{
         this.makeMirror = makeMirror;
         this.game = game;
         random = new Random();
+
+        electricity = Toolkit.getDefaultToolkit().createImage("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Images\\electricity.gif");
+        ice = Toolkit.getDefaultToolkit().createImage("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Images\\ice.gif");
+        poison = Toolkit.getDefaultToolkit().createImage("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Images\\poison.gif");
     }
 
     public void tick() {
@@ -84,8 +93,26 @@ public class Player extends GameObject{
 
         if (right && !left){
             g2d.drawImage(makeMirror.Mirror(transparent), (int) x - 115, (int) y + 27, null);
+            if (voltorbHit) {
+                g.drawImage(electricity, (int) x + 60, (int) y + 50, null);
+            }
+            if (glalieHit) {
+                g.drawImage(ice, (int) x + 60, (int) y + 50, null);
+            }
+            if (hud.koffingHit) {
+                g.drawImage(poison, (int) x + 60, (int) y + 50, null);
+            }
         }else{
             g2d.drawImage(transparent, (int) x + 25, (int) y + 25, null);
+            if (voltorbHit) {
+                g.drawImage(electricity, (int) x + 60, (int) y + 50, null);
+            }
+            if (glalieHit) {
+                g.drawImage(ice, (int) x + 60, (int) y + 50, null);
+            }
+            if (hud.koffingHit) {
+                g.drawImage(poison, (int) x + 60, (int) y + 50, null);
+            }
         }
     }
 
