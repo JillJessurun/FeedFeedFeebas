@@ -25,7 +25,7 @@ public class Voltorb extends GameObject{
         x += velX;
         y += velY;
 
-        if (y <= -45 || y >= Game.HEIGHT - 100) {
+        if (y <= -45 || y >= Game.HEIGHT - 140) {
             velY *= -1;
         }
         if (x <= -45 || x >= Game.WIDTH - 100) {

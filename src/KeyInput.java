@@ -74,6 +74,8 @@ public class KeyInput extends KeyAdapter {
                         game.gameState = Game.STATE.Menu;
                     } else if (game.gameState == Game.STATE.GameOver){
                         game.gameState = Game.STATE.Menu;
+                    } else if (game.gameState == Game.STATE.LevelMenu){
+                        game.gameState = Game.STATE.Menu;
                     }else{
                         System.exit(0);
                     }

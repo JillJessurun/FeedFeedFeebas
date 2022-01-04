@@ -64,7 +64,7 @@ public class Food extends GameObject{
             }
         }
 
-        if (y <= -15 || y >= Game.HEIGHT - 53){
+        if (y <= -15 || y >= Game.HEIGHT - 93){
             velY *= -1;
         }
         if (x <= -10 || x >= Game.WIDTH - 53) {

@@ -14,16 +14,16 @@ ideas:
 - als je de enemies raakt gaat feebas tijdelijk anders eruit zien (onder stroom staan, ziek zijn, bevroren, etc.)
 - icoontje van snelkoppeling aanpassen
 - powerups toevoegen (chansey bar refill, health refill, multiple food spawns, speed power up, enemy freeze, enemy slow)
+- level systeem met eerst een level pagina als je op play drukt (ook per wereld)
 - target toevoegen (bepaald aantal food eten). Als je de target hebt gehaald kan je wel doorgaan om een goede highscore
   te behalen. Er komt ook een knop tevoorschijn 'end level'.
-- level systeem
-- soundeffects
+- meer soundeffects
 - enemies hebben verschillende grootte
 - options; save, mute, help, naam van jouw feebas in kunnen voeren, new game starten
 - bij hoveren over knoppen worden ze iets groter en vaag grijs ofzo
 - highscore + last score opslaan
 - render probleem oplossen dat objecten niet weggaan als ze bewegen maar blijven renderen (onder de achtergrond)
-- bij pauzeren zorgen dat de health bar niet helemaal vult
+- scroll functie in level menu
 */
 
 import java.awt.*;
@@ -60,6 +60,7 @@ public class Game extends Canvas implements Runnable {
     private boolean popUpWarningCreated = false;
     public boolean gameStarted = false;
     public boolean removedAllObjects = false;
+    private LevelMenu levelMenu;
 
     //audio
     public static Audio mainAudio;
@@ -76,6 +77,7 @@ public class Game extends Canvas implements Runnable {
         OptionsInGame,
         PopUp,
         GameOver,
+        LevelMenu,
         Level1
     }
 
@@ -193,10 +195,11 @@ public class Game extends Canvas implements Runnable {
         popUpWarning = new Popup(this, hud, countdown, menu, handler);
         popUpWarningCreated = true;
         gameOver = new GameOver(this, hud, countdown, menu, handler);
+        levelMenu = new LevelMenu(this);
 
         Player player1 = new Player(WIDTH / 2 - 32, HEIGHT / 2 - 32, ID.Player, handler, hud, keyInput, feebas, makeTransparent, steak, makeMirror, this);
         handler.addObject(player1);
-        handler.addObject(new Food(random.nextInt(0, Game.WIDTH - 20), random.nextInt(0, Game.HEIGHT - 20), ID.Food, handler, makeTransparent, steak, player1, this));
+        handler.addObject(new Food(random.nextInt(0, 1400), random.nextInt(0, 650), ID.Food, handler, makeTransparent, steak, player1, this));
         handler.addObject(new Chansey(0, 640, ID.Chansey, handler, chansey, makeTransparent, makeMirror, hud));
 
         //listeners for input
@@ -228,9 +231,9 @@ public class Game extends Canvas implements Runnable {
             Random random1 = new Random();
             Random random2 = new Random();
             Random random3 = new Random();
-            handler.addObject(new Voltorb(random1.nextInt(0, 1500), random1.nextInt(0, 750), ID.Voltorb, handler, voltorb, makeTransparent, makeMirror));
-            handler.addObject(new Koffing(random2.nextInt(0, 1500), random2.nextInt(0, 750), ID.Koffing, handler, koffing, makeTransparent, makeMirror));
-            handler.addObject(new Glalie(random3.nextInt(0, 1500), random3.nextInt(0, 750), ID.Glalie, handler, glalie, makeTransparent, makeMirror));
+            handler.addObject(new Voltorb(random1.nextInt(0, 1400), random1.nextInt(0, 650), ID.Voltorb, handler, voltorb, makeTransparent, makeMirror));
+            handler.addObject(new Koffing(random2.nextInt(0, 1400), random2.nextInt(0, 650), ID.Koffing, handler, koffing, makeTransparent, makeMirror));
+            handler.addObject(new Glalie(random3.nextInt(0, 1400), random3.nextInt(0, 650), ID.Glalie, handler, glalie, makeTransparent, makeMirror));
             gameStarted = false;
             timer = 0;
         }
@@ -246,7 +249,7 @@ public class Game extends Canvas implements Runnable {
                         //add a koffing
                         timer = 0;
                         Random random = new Random();
-                        handler.addObject(new Koffing(random.nextInt(0, 1500), random.nextInt(0, 750), ID.Koffing, handler, koffing, makeTransparent, makeMirror));
+                        handler.addObject(new Koffing(random.nextInt(0, 1400), random.nextInt(0, 650), ID.Koffing, handler, koffing, makeTransparent, makeMirror));
                     }
                 } else {
                     countdown.tick();
@@ -256,6 +259,9 @@ public class Game extends Canvas implements Runnable {
                 menu.tick();
             } else if (gameState == STATE.Pause || gameState == STATE.OptionsInGame) {
                 pausedMenu.tick();
+            } else if (gameState == STATE.LevelMenu) {
+                levelMenu.tick();
+                menu.tick();
             } else if (hud.getHEALTH() > 10000) {
                 gameState = STATE.GameOver;
                 gameOver.tick();
@@ -340,6 +346,9 @@ public class Game extends Canvas implements Runnable {
                         popUpWarning.render(g);
                     }
                 }
+            } else if (gameState == STATE.LevelMenu) {
+                menu.render(g);
+                levelMenu.render(g);
             }
             if (hud.getHEALTH() > 10000) {
                 gameState = STATE.GameOver;

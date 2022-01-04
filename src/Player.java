@@ -56,7 +56,7 @@ public class Player extends GameObject{
         y += velY;
 
         x = Game.clamp(x, -60, Game.WIDTH - 130);
-        y = Game.clamp(y, -50, Game.HEIGHT - 138);
+        y = Game.clamp(y, -50, Game.HEIGHT - 175);
 
         collision();
 

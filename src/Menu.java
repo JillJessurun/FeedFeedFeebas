@@ -55,6 +55,7 @@ public class Menu extends MouseAdapter {
 
         //play button
         if (mouseOver(mx, my, 238, 325, 105, 53) && game.gameState == Game.STATE.Menu){
+            /*
             game.gameState = Game.STATE.Level1;
 
             Image newimage = Toolkit.getDefaultToolkit().createImage("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Images\\steak.gif");
@@ -70,6 +71,10 @@ public class Menu extends MouseAdapter {
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
+
+             */
+
+            game.gameState = Game.STATE.LevelMenu;
         }
 
         //options button

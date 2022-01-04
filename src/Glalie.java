@@ -24,7 +24,7 @@ public class Glalie extends GameObject{
         x += velX;
         y += velY;
 
-        if (y <= -25 || y >= Game.HEIGHT - 82) {
+        if (y <= -25 || y >= Game.HEIGHT - 120) {
             velY *= -1;
         }
         if (x <= -28 || x >= Game.WIDTH - 78) {

@@ -33,7 +33,7 @@ public class Koffing extends GameObject{
         x += velX;
         y += velY;
 
-        if (y <= -30 || y >= Game.HEIGHT - 90) {
+        if (y <= -30 || y >= Game.HEIGHT - 125) {
             velY *= -1;
         }
         if (x <= -20 || x >= Game.WIDTH - 100) {
