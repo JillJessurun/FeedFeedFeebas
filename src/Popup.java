@@ -44,12 +44,16 @@ public class Popup extends MouseAdapter {
                 game.removedAllObjects = false;
                 game.timer = 0;
                 game.gameStarted = false;
+                game.level15Reached = false;
+                game.level15Started = false;
+                game.timerEnd = 100;
 
                 //remove all enemies
                 handler.object = handler.getListWithoutEnemies(handler.object);
 
                 //audio
                 try {
+                    game.foodAudio.stopMusic();
                     game.level1Audio.stopMusic();
                     game.mainAudio.startMusic();
                 } catch (Exception ex) {

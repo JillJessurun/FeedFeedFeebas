@@ -18,43 +18,47 @@ public class KeyInput extends KeyAdapter {
         keyDown[3] = false;
     }
 
-    public void keyPressed(KeyEvent e){
+    public void keyPressed(KeyEvent e) {
         int key = e.getKeyCode();
 
         for (int i = 0; i < handler.object.size(); i++) {
             GameObject tempObject = handler.object.get(i);
-            if(tempObject.getId() == ID.Player){
+            if (tempObject.getId() == ID.Player) {
                 // key events for player 1
-                if (!glalieHit){
+                if (!glalieHit) {
                     if (key == KeyEvent.VK_W) {
-                        tempObject.setVelY(player.getNegativeVelocity()); keyDown[0] = true;
+                        tempObject.setVelY(player.getNegativeVelocity());
+                        keyDown[0] = true;
                         if (player.left) {
                             player.left = false;
                             player.right = false;
                         }
                     }
                     if (key == KeyEvent.VK_S) {
-                        tempObject.setVelY(player.getPositiveVelocity()); keyDown[1] = true;
+                        tempObject.setVelY(player.getPositiveVelocity());
+                        keyDown[1] = true;
                         if (player.left) {
                             player.left = false;
                             player.right = false;
                         }
                     }
                     if (key == KeyEvent.VK_A) {
-                        tempObject.setVelX(player.getNegativeVelocity()); keyDown[2] = true;
+                        tempObject.setVelX(player.getNegativeVelocity());
+                        keyDown[2] = true;
                         player.left = true;
                         player.right = false;
                     }
                     if (key == KeyEvent.VK_D) {
-                        tempObject.setVelX(player.getPositiveVelocity()); keyDown[3] = true;
+                        tempObject.setVelX(player.getPositiveVelocity());
+                        keyDown[3] = true;
                         player.left = false;
                         player.right = true;
                     }
                     if (key == KeyEvent.VK_P) {
-                        if (game.gameState == Game.STATE.Pause){
+                        if (game.gameState == Game.STATE.Pause) {
                             game.gameState = Game.STATE.Level1;
 
-                        }else{
+                        } else {
                             game.gameState = Game.STATE.Pause;
                         }
                     }
@@ -72,12 +76,13 @@ public class KeyInput extends KeyAdapter {
                         game.gameState = Game.STATE.Pause;
                     } else if (game.gameState == Game.STATE.PopUp) {
                         game.gameState = Game.STATE.Menu;
-                    } else if (game.gameState == Game.STATE.GameOver){
+                    } else if (game.gameState == Game.STATE.GameOver) {
                         game.gameState = Game.STATE.Menu;
-                    } else if (game.gameState == Game.STATE.LevelMenu){
+                    } else if (game.gameState == Game.STATE.LevelMenu) {
                         game.gameState = Game.STATE.Menu;
-                    }else{
-                        System.exit(0);
+                    } else if (game.gameState == Game.STATE.Menu) {{
+                            game.gameState = Game.STATE.PopUp;
+                        }
                     }
                 }
             }

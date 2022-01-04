@@ -48,7 +48,7 @@ public class Countdown {
         ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Fonts\\pokemon.ttf")));
 
         g.setFont(pokemonFont);
-        Color color = new Color(112, 10, 10);
+        Color color = new Color(198, 0, 241);
         g.setColor(color);
 
         if (timer >= 0 && timer < 100){

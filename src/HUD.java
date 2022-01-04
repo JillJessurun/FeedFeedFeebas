@@ -132,11 +132,28 @@ public class HUD {
             g.drawString("HUNGER  =  " + HEALTHPERCENTAGE, 560, 62);
             g.setColor(Color.magenta);
             g.drawString("EAT SCORE  =  " + EATSCORE, 760, 62);
+        }
+        if (EATSCORE >= 25){
+            g.setColor(Color.green);
+            if (HEALTH < 10000) {
+                g.drawString("LEVEL COMPLETED!", 985, 62);
+            }
         }else{
+            g.setColor(Color.orange);
+            g.drawString("EAT TARGET  =  25", 985, 62);
+        }
+        if(HEALTH >= 10000){
             g.setColor(Color.red);
             g.drawString("-  DEAD  -", 560, 62);
             game.audioGameoverCreated = true;
             game.audioGameoverTimer = true;
+            if (!game.gameover) {
+                try {
+                    game.foodAudio.stopMusic();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
             game.gameover = true;
         }
     }

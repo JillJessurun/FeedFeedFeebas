@@ -55,25 +55,6 @@ public class Menu extends MouseAdapter {
 
         //play button
         if (mouseOver(mx, my, 238, 325, 105, 53) && game.gameState == Game.STATE.Menu){
-            /*
-            game.gameState = Game.STATE.Level1;
-
-            Image newimage = Toolkit.getDefaultToolkit().createImage("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Images\\steak.gif");
-            Image newimage2 = Toolkit.getDefaultToolkit().createImage("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Images\\loading.gif");
-            countdown.setImage3(newimage);
-            countdown.setImage2(newimage2);
-
-            playPressed = true;
-            game.gameStarted = true;
-            try {
-                game.mainAudio.stopMusic();
-                game.loadingAudio.startMusic();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-
-             */
-
             game.gameState = Game.STATE.LevelMenu;
         }
 
@@ -89,7 +70,7 @@ public class Menu extends MouseAdapter {
         }
 
         //back button options
-        if (mouseOver(mx, my, 238, 645, 110, 53) && game.gameState == Game.STATE.Options){
+        if (mouseOver(mx, my, 238, 705, 110, 53) && game.gameState == Game.STATE.Options){
             game.gameState = Game.STATE.Menu;
         }
     }
@@ -104,6 +85,39 @@ public class Menu extends MouseAdapter {
         }else{
             return false;
         }
+    }
+
+    public static float getMouseXposition(){
+        Point point = MouseInfo.getPointerInfo().getLocation();
+        return (float) point.getX();
+    }
+
+    public static float getMouseYposition(){
+        Point point = MouseInfo.getPointerInfo().getLocation();
+        return (float) point.getY();
+    }
+
+    public static boolean mouseHover(float x, float y, int width, int height){
+        if (getMouseXposition() > (x + width)){
+            return false;
+        }else if (getMouseXposition() < x){
+            return false;
+        }else if (getMouseYposition() > (y + height)){
+            return false;
+        }else if (getMouseYposition() < y){
+            return false;
+        }else{
+            return true;
+        }
+    }
+
+    public static void drawButton(float x, float y, int width, int height, int drawX, int drawY, String buttonName, Graphics g){
+        g.setColor(Color.black);
+        if (mouseHover(x, y, width,height)){
+            g.setColor(Color.white);
+        }
+        g.drawString("" + buttonName, drawX, drawY);
+        g.setColor(Color.black);
     }
 
     public void stopIngameAudio(){
@@ -195,14 +209,15 @@ public class Menu extends MouseAdapter {
         g.setFont(buttonFont);
         g.setColor(Color.black);
         if (game.gameState == Game.STATE.Menu || game.gameState == Game.STATE.PopUp) {
-            g.drawString("Play", 240, 370);
-            //g.drawRect(238, 325, 105, 53);
-            g.drawString("Options", 240, 530);
-            //g.drawRect(238, 485, 180, 53);
-            g.drawString("Quit", 240, 690);
-            //g.drawRect(238, 645, 110, 53);
+            drawButton(238, 325, 105, 53, 240, 370, "Play", g);
+            drawButton(238, 485, 180, 53, 240, 530, "Options", g);
+            drawButton(238, 645, 110, 53, 240, 690, "Quit", g);
         }else if (game.gameState == Game.STATE.Options){
-            g.drawString("Back", 240, 690);
+            drawButton(240, 298, 290, 50, 240, 340, "Change name", g);
+            drawButton(240, 398, 143, 45, 240, 440, "Sound", g);
+            drawButton(240, 498, 240, 50, 240, 540, "Highscores", g);
+            drawButton(240, 598, 235, 50, 240, 640, "New game", g);
+            drawButton(240, 695, 110, 45, 240, 740, "Back", g);
         }
 
         //suicide feebas

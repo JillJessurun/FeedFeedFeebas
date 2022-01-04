@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.Image;
 import java.awt.image.BufferStrategy;
 
 public class Window {
@@ -7,6 +8,8 @@ public class Window {
     public Window(int width, int height, String title, Game game){
         //create frame
         JFrame frame = new JFrame(title);
+        Image icon = Toolkit.getDefaultToolkit().getImage("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Images\\feebasicon.png");
+        frame.setIconImage(icon);
 
         frame.setPreferredSize(new Dimension(width, height));//set the size of the dimension of the frame
         frame.setMaximumSize(new Dimension(width, height));

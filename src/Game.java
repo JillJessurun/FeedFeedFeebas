@@ -11,24 +11,24 @@ AlphaComposite alphaComposite = AlphaComposite.getInstance(AlphaComposite.SRC_AT
 g2d.setComposite(alphaComposite);
 
 ideas:
-- als je de enemies raakt gaat feebas tijdelijk anders eruit zien (onder stroom staan, ziek zijn, bevroren, etc.)
 - icoontje van snelkoppeling aanpassen
 - powerups toevoegen (chansey bar refill, health refill, multiple food spawns, speed power up, enemy freeze, enemy slow)
-- level systeem met eerst een level pagina als je op play drukt (ook per wereld)
 - target toevoegen (bepaald aantal food eten). Als je de target hebt gehaald kan je wel doorgaan om een goede highscore
   te behalen. Er komt ook een knop tevoorschijn 'end level'.
 - meer soundeffects
 - enemies hebben verschillende grootte
 - options; save, mute, help, naam van jouw feebas in kunnen voeren, new game starten
-- bij hoveren over knoppen worden ze iets groter en vaag grijs ofzo
-- highscore + last score opslaan
 - render probleem oplossen dat objecten niet weggaan als ze bewegen maar blijven renderen (onder de achtergrond)
 - scroll functie in level menu
+- try again button wanneer game over
+- bliep geluid bij hoveren over knoppen
+- zorgen dat enemies niet in je kunnen spawnen
 */
 
 import java.awt.*;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.util.Random;
 
@@ -61,6 +61,11 @@ public class Game extends Canvas implements Runnable {
     public boolean gameStarted = false;
     public boolean removedAllObjects = false;
     private LevelMenu levelMenu;
+    private File file;
+    private Player player;
+    public boolean level15Reached = false;
+    public boolean level15Started = false;
+    public int timerEnd = 100;
 
     //audio
     public static Audio mainAudio;
@@ -182,6 +187,7 @@ public class Game extends Canvas implements Runnable {
         foodAudio = new Audio();
 
         //create instances
+        file = new File("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\HighscoreW1L1.txt");
         loadingAudio = new Audio();
         countdown = new Countdown();
         makeTransparent = new MakeTransparent();
@@ -194,10 +200,11 @@ public class Game extends Canvas implements Runnable {
         pausedMenu = new PausedMenu(this);
         popUpWarning = new Popup(this, hud, countdown, menu, handler);
         popUpWarningCreated = true;
-        gameOver = new GameOver(this, hud, countdown, menu, handler);
-        levelMenu = new LevelMenu(this);
+        gameOver = new GameOver(this, hud, countdown, menu, handler, file);
+        levelMenu = new LevelMenu(this, countdown, menu, file);
 
         Player player1 = new Player(WIDTH / 2 - 32, HEIGHT / 2 - 32, ID.Player, handler, hud, keyInput, feebas, makeTransparent, steak, makeMirror, this);
+        this.player = player1;
         handler.addObject(player1);
         handler.addObject(new Food(random.nextInt(0, 1400), random.nextInt(0, 650), ID.Food, handler, makeTransparent, steak, player1, this));
         handler.addObject(new Chansey(0, 640, ID.Chansey, handler, chansey, makeTransparent, makeMirror, hud));
@@ -208,6 +215,7 @@ public class Game extends Canvas implements Runnable {
         this.addMouseListener(this.pausedMenu);
         this.addMouseListener(this.popUpWarning);
         this.addMouseListener(this.gameOver);
+        this.addMouseListener(this.levelMenu);
     }
 
     //start thread
@@ -231,9 +239,9 @@ public class Game extends Canvas implements Runnable {
             Random random1 = new Random();
             Random random2 = new Random();
             Random random3 = new Random();
-            handler.addObject(new Voltorb(random1.nextInt(0, 1400), random1.nextInt(0, 650), ID.Voltorb, handler, voltorb, makeTransparent, makeMirror));
+            //handler.addObject(new Voltorb(random1.nextInt(0, 1400), random1.nextInt(0, 650), ID.Voltorb, handler, voltorb, makeTransparent, makeMirror));
             handler.addObject(new Koffing(random2.nextInt(0, 1400), random2.nextInt(0, 650), ID.Koffing, handler, koffing, makeTransparent, makeMirror));
-            handler.addObject(new Glalie(random3.nextInt(0, 1400), random3.nextInt(0, 650), ID.Glalie, handler, glalie, makeTransparent, makeMirror));
+            //handler.addObject(new Glalie(random3.nextInt(0, 1400), random3.nextInt(0, 650), ID.Glalie, handler, glalie, makeTransparent, makeMirror));
             gameStarted = false;
             timer = 0;
         }
@@ -245,11 +253,51 @@ public class Game extends Canvas implements Runnable {
                     hud.tick();
                     //later spawns
                     timer++;
-                    if (timer > 400) {
+                    if (level15Started){
+                        timerEnd = 20;
+                        level15Reached = false;
+                        level15Started = false;
+                    }
+                    if (timer > timerEnd) {
                         //add a koffing
                         timer = 0;
                         Random random = new Random();
-                        handler.addObject(new Koffing(random.nextInt(0, 1400), random.nextInt(0, 650), ID.Koffing, handler, koffing, makeTransparent, makeMirror));
+                        int randomX = random.nextInt();
+                        int randomY = random.nextInt();
+
+                        //check if spawn is in the player area
+                        if (randomX > (player.x - 200) || randomX < (player.x + 200)){
+                            randomX = (int) (player.x - 200);
+                            if (randomX > 1400){
+                                randomX = 0;
+                            }else if (randomX < 0){
+                                randomX = 1400;
+                            }
+                        }
+                        if (randomY > (player.y - 200) || randomY < (player.y + 200)){
+                            randomY = (int) (player.y - 200);
+                            if (randomY > 1400){
+                                randomY = 0;
+                            }else if (randomY < 0){
+                                randomY = 1400;
+                            }
+                        }
+                        if (hud.getEATSCORE() < 15 && !level15Reached || hud.getEATSCORE() == 14) {
+                            handler.addObject(new Koffing(randomX, randomY, ID.Koffing, handler, koffing, makeTransparent, makeMirror));
+                        }
+                        if (hud.getEATSCORE() >= 15){
+                            if (level15Reached) {
+                                level15Started = true;
+                            }
+                            handler.addObject(new Koffing(randomX, randomY, ID.Koffing, handler, koffing, makeTransparent, makeMirror));
+                        }
+
+                        if (hud.getEATSCORE() == 14){
+                            level15Reached = true;
+                        }else if (hud.getEATSCORE() >= 15 && level15Reached){
+                            handler.object = handler.getListWithoutEnemies(handler.object);
+                            level15Reached = false;
+                        }
                     }
                 } else {
                     countdown.tick();
