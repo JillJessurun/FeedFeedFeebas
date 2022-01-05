@@ -42,7 +42,6 @@ public class LevelMenu extends MouseAdapter {
             countdown.setImage2(newimage2);
 
             menu.playPressed = true;
-            game.gameStarted = true;
             try {
                 game.mainAudio.stopMusic();
                 game.loadingAudio.startMusic();

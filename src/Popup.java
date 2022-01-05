@@ -10,13 +10,15 @@ public class Popup extends MouseAdapter {
     private Countdown startCountdown;
     private Menu menu;
     private Handler handler;
+    private Level1 level1;
 
-    public Popup(Game game, HUD hud, Countdown startCountdown, Menu menu, Handler handler){
+    public Popup(Game game, HUD hud, Countdown startCountdown, Menu menu, Handler handler, Level1 level1){
         this.game = game;
         this.hud = hud;
         this.startCountdown = startCountdown;
         this.menu = menu;
         this.handler = handler;
+        this.level1 = level1;
     }
 
     public void mousePressed(MouseEvent e){
@@ -42,11 +44,10 @@ public class Popup extends MouseAdapter {
                 hud.resetHUD();
                 startCountdown.resetData();
                 game.removedAllObjects = false;
-                game.timer = 0;
-                game.gameStarted = false;
-                game.level15Reached = false;
-                game.level15Started = false;
-                game.timerEnd = 100;
+                level1.timer = 0;
+                level1.level15Reached = false;
+                level1.level15Started = false;
+                level1.timerEnd = 100;
 
                 //remove all enemies
                 handler.object = handler.getListWithoutEnemies(handler.object);

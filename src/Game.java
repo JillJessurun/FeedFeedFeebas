@@ -46,7 +46,6 @@ public class Game extends Canvas implements Runnable {
     private MakeMirror makeMirror;
     private Countdown countdown;
     private static Menu menu;
-    public int timer = 0;
     private PausedMenu pausedMenu;
     private Popup popUpWarning;
     public boolean inGame = false;
@@ -56,16 +55,13 @@ public class Game extends Canvas implements Runnable {
     private boolean hudCreated;
     public boolean audioGameoverCreated = false;
     public boolean audioGameoverTimer = false;
-    private int timer2 = 0 ;
+    private int timer2 = 0;
     private boolean popUpWarningCreated = false;
-    public boolean gameStarted = false;
     public boolean removedAllObjects = false;
     private LevelMenu levelMenu;
     private File file;
-    private Player player;
-    public boolean level15Reached = false;
-    public boolean level15Started = false;
-    public int timerEnd = 100;
+    public Player player;
+    private Level1 level1;
 
     //audio
     public static Audio mainAudio;
@@ -198,9 +194,13 @@ public class Game extends Canvas implements Runnable {
         this.menuCreated = true;
         this.hudCreated = true;
         pausedMenu = new PausedMenu(this);
-        popUpWarning = new Popup(this, hud, countdown, menu, handler);
+
+        //levels
+        level1 = new Level1(countdown, handler, hud, koffing, makeTransparent, makeMirror, this, background, grass);
+
+        popUpWarning = new Popup(this, hud, countdown, menu, handler, level1);
         popUpWarningCreated = true;
-        gameOver = new GameOver(this, hud, countdown, menu, handler, file);
+        gameOver = new GameOver(this, hud, countdown, menu, handler, file, level1);
         levelMenu = new LevelMenu(this, countdown, menu, file);
 
         Player player1 = new Player(WIDTH / 2 - 32, HEIGHT / 2 - 32, ID.Player, handler, hud, keyInput, feebas, makeTransparent, steak, makeMirror, this);
@@ -235,74 +235,9 @@ public class Game extends Canvas implements Runnable {
     }
 
     public void tick() {
-        if (gameStarted) {
-            Random random1 = new Random();
-            Random random2 = new Random();
-            Random random3 = new Random();
-            //handler.addObject(new Voltorb(random1.nextInt(0, 1400), random1.nextInt(0, 650), ID.Voltorb, handler, voltorb, makeTransparent, makeMirror));
-            handler.addObject(new Koffing(random2.nextInt(0, 1400), random2.nextInt(0, 650), ID.Koffing, handler, koffing, makeTransparent, makeMirror));
-            //handler.addObject(new Glalie(random3.nextInt(0, 1400), random3.nextInt(0, 650), ID.Glalie, handler, glalie, makeTransparent, makeMirror));
-            gameStarted = false;
-            timer = 0;
-        }
-
         if (hudCreated && menuCreated) {
             if (gameState == STATE.Level1) {
-                if (countdown.timer >= 260) {
-                    handler.tick();
-                    hud.tick();
-                    //later spawns
-                    timer++;
-                    if (level15Started){
-                        timerEnd = 20;
-                        level15Reached = false;
-                        level15Started = false;
-                    }
-                    if (timer > timerEnd) {
-                        //add a koffing
-                        timer = 0;
-                        Random random = new Random();
-                        int randomX = random.nextInt();
-                        int randomY = random.nextInt();
-
-                        //check if spawn is in the player area
-                        if (randomX > (player.x - 200) || randomX < (player.x + 200)){
-                            randomX = (int) (player.x - 200);
-                            if (randomX > 1400){
-                                randomX = 0;
-                            }else if (randomX < 0){
-                                randomX = 1400;
-                            }
-                        }
-                        if (randomY > (player.y - 200) || randomY < (player.y + 200)){
-                            randomY = (int) (player.y - 200);
-                            if (randomY > 1400){
-                                randomY = 0;
-                            }else if (randomY < 0){
-                                randomY = 1400;
-                            }
-                        }
-                        if (hud.getEATSCORE() < 15 && !level15Reached || hud.getEATSCORE() == 14) {
-                            handler.addObject(new Koffing(randomX, randomY, ID.Koffing, handler, koffing, makeTransparent, makeMirror));
-                        }
-                        if (hud.getEATSCORE() >= 15){
-                            if (level15Reached) {
-                                level15Started = true;
-                            }
-                            handler.addObject(new Koffing(randomX, randomY, ID.Koffing, handler, koffing, makeTransparent, makeMirror));
-                        }
-
-                        if (hud.getEATSCORE() == 14){
-                            level15Reached = true;
-                        }else if (hud.getEATSCORE() >= 15 && level15Reached){
-                            handler.object = handler.getListWithoutEnemies(handler.object);
-                            level15Reached = false;
-                        }
-                    }
-                } else {
-                    countdown.tick();
-                }
-
+                level1.tick();
             } else if (gameState == STATE.Menu || gameState == STATE.Options) {
                 menu.tick();
             } else if (gameState == STATE.Pause || gameState == STATE.OptionsInGame) {
@@ -350,7 +285,6 @@ public class Game extends Canvas implements Runnable {
         }
 
         Graphics g = bs.getDrawGraphics();
-        Graphics2D g2d = (Graphics2D) g;
 
         Color color = new Color(0, 0, 0, 0);
         g.setColor(color);
@@ -358,31 +292,7 @@ public class Game extends Canvas implements Runnable {
 
         if (hudCreated && menuCreated) {
             if (gameState == STATE.Level1) {
-                g.clearRect(0, 0, 1920, 1080);
-                g.drawImage(background, 0, 0, null);
-
-                if (countdown.timer >= 260) {
-                    inGame = true;
-                    handler.render(g);
-                    hud.render(g, g2d);
-
-                    //render ground
-                    int colour = grass.getRGB(0, 0);
-                    g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 0, 750, null);
-                    g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 200, 750, null);
-                    g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 230, 750, null);
-                    g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 400, 750, null);
-                    g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 500, 750, null);
-                    g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 550, 750, null);
-                    g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 750, 750, null);
-                    g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 865, 750, null);
-                    g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 953, 750, null);
-                    g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 1000, 750, null);
-                    g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 1200, 750, null);
-                    g.drawImage(makeTransparent.makeColorTransparent(grass, new Color(colour)), 1400, 750, null);
-                } else {
-                    countdown.render(g);
-                }
+                level1.render(g);
             } else if (gameState == STATE.Menu || gameState == STATE.Options) {
                 menu.render(g);
             } else if (gameState == STATE.Pause || gameState == STATE.OptionsInGame || gameState == STATE.PopUp) {
@@ -408,7 +318,6 @@ public class Game extends Canvas implements Runnable {
         }
 
     }
-
 
 
     //game loop
@@ -459,7 +368,7 @@ public class Game extends Canvas implements Runnable {
         }
     }
 
-    public static void resetData(){
+    public static void resetData() {
 
     }
 

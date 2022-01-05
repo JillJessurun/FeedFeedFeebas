@@ -11,16 +11,18 @@ public class GameOver extends MouseAdapter {
     private Menu menu;
     private Handler handler;
     private File file;
+    private Level1 level1;
     private boolean appended = false;
     private boolean newHighscore = true;
 
-    public GameOver(Game game, HUD hud, Countdown countdown, Menu menu, Handler handler, File file){
+    public GameOver(Game game, HUD hud, Countdown countdown, Menu menu, Handler handler, File file, Level1 level1){
         this.game = game;
         this.hud = hud;
         this.countdown = countdown;
         this.menu = menu;
         this.handler = handler;
         this.file = file;
+        this.level1 = level1;
     }
 
     public void mousePressed(MouseEvent e) {
@@ -36,11 +38,10 @@ public class GameOver extends MouseAdapter {
             game.gameover = false;
             menu.explosion = false;
             game.removedAllObjects = false;
-            game.timer = 0;
-            game.gameStarted = false;
-            game.level15Reached = false;
-            game.level15Started = false;
-            game.timerEnd = 100;
+            level1.timer = 0;
+            level1.level15Reached = false;
+            level1.level15Started = false;
+            level1.timerEnd = 100;
 
             //remove all enemies
             handler.object = handler.getListWithoutEnemies(handler.object);

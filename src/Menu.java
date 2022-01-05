@@ -183,6 +183,10 @@ public class Menu extends MouseAdapter {
         }
     }
 
+    public void paint(Graphics g){
+
+    }
+
     public void render(Graphics g) throws IOException, FontFormatException {
         g.drawImage(feebasBG, 0,0,null);
         g.setColor(Color.BLACK);
