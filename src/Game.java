@@ -189,7 +189,7 @@ public class Game extends Canvas implements Runnable {
         Window window = new Window(WIDTH, HEIGHT, "FeedFeedFeebas!", this);
         jFrame = window.getFrame();
 
-        handler = new Handler();
+        handler = new Handler(this, background);
         jFrame.add(handler);
 
         //audio

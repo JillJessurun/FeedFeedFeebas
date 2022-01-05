@@ -105,7 +105,7 @@ public class Level2 {
 
         if (countdown.timer >= 260) {
             game.inGame = true;
-            handler.render(g);
+            handler.paintComponent(g);
             hud.render(g, g2d);
 
             //render ground

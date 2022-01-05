@@ -20,7 +20,7 @@ public class Level1 {
     public int timer = 0;
     public boolean level15Started;
     public boolean level15Reached;
-    public int timerEnd = 90;
+    public int timerEnd = 20;
     public int eatscore;
 
     //constructor
@@ -99,13 +99,12 @@ public class Level1 {
 
     //render method
     public void render(Graphics g) throws IOException, FontFormatException {
-        g.clearRect(0, 0, 1920, 1080);
         g.drawImage(background, 0, 0, null);
         Graphics2D g2d = (Graphics2D) g;
 
         if (countdown.timer >= 260) {
             game.inGame = true;
-            handler.render(g);
+            handler.paintComponent(g);
             hud.render(g, g2d);
 
             //render ground

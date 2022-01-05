@@ -18,7 +18,7 @@ public class Menu extends MouseAdapter {
     private Handler handler;
     private Game game;
     private Random random;
-    private Image image;
+    public Image image;
     private Paint paint;
     public boolean explosion = false;
     private int timer = 0;
@@ -113,7 +113,7 @@ public class Menu extends MouseAdapter {
         }
     }
 
-    public static void drawButton(float x, float y, int width, int height, int drawX, int drawY, String buttonName, Graphics g){
+    public void drawButton(float x, float y, int width, int height, int drawX, int drawY, String buttonName, Graphics g){
         g.setColor(Color.black);
         if (mouseHover(x, y, width,height)){
             g.setColor(Color.white);
@@ -186,6 +186,10 @@ public class Menu extends MouseAdapter {
     }
 
     public void render(Graphics g) throws IOException, FontFormatException {
+
+        handler.renderMenu(g, x, y, feebasBG, feebasSprite, food, feebasMoving, makeTransparent, game, explosion, this, x2, y2);
+
+        /*
         g.drawImage(feebasBG, 0,0,null);
         g.setColor(Color.BLACK);
 
@@ -210,6 +214,7 @@ public class Menu extends MouseAdapter {
         //buttons
         g.setFont(buttonFont);
         g.setColor(Color.black);
+
         if (game.gameState == Game.STATE.Menu || game.gameState == Game.STATE.PopUp) {
             drawButton(238, 325, 105, 53, 240, 370, "Play", g);
             drawButton(238, 485, 180, 53, 240, 530, "Options", g);
@@ -222,15 +227,20 @@ public class Menu extends MouseAdapter {
             drawButton(240, 695, 110, 45, 240, 740, "Back", g);
         }
 
+
+
         //suicide feebas
         g.drawImage(makeTransparent.makeColorTransparent(feebasMoving, new Color(colour)), (int)x, (int)y, null);
         g.drawImage(makeTransparent.makeColorTransparent(food, new Color(colour)), (int)x2, (int)y2, null);
+
         //BufferedImage bufferedImage = makeTransparent.imageToBufferedImage(makeTransparent.makeColorTransparent(feebasMoving, new Color(colour)));
-        //paint.paintComponent(g, (int)x, (int)y, bufferedImage);
+        //handler.renderMenu(g, (int)x, (int)y, bufferedImage);
 
         //gif
         if (explosion) {
             g.drawImage(image, 630, 465, null);
         }
+
+         */
     }
 }

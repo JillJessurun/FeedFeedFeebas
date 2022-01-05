@@ -1,8 +1,10 @@
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
+import java.awt.image.ImageProducer;
 import java.io.IOException;
 
-public class Image {
+public class Image extends java.awt.Image {
 
     private BufferedImage image;
 
@@ -22,5 +24,30 @@ public class Image {
         graphics2D.dispose();
 
         return resizedImage;
+    }
+
+    @Override
+    public int getWidth(ImageObserver observer) {
+        return 0;
+    }
+
+    @Override
+    public int getHeight(ImageObserver observer) {
+        return 0;
+    }
+
+    @Override
+    public ImageProducer getSource() {
+        return null;
+    }
+
+    @Override
+    public Graphics getGraphics() {
+        return null;
+    }
+
+    @Override
+    public Object getProperty(String name, ImageObserver observer) {
+        return null;
     }
 }
