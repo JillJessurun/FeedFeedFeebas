@@ -3,7 +3,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Random;
 
-public class Level1 {
+public class Level2 {
 
     //classes
     private Countdown countdown;
@@ -24,7 +24,7 @@ public class Level1 {
     public int eatscore;
 
     //constructor
-    public Level1(Countdown countdown, Handler handler, HUD hud, BufferedImage koffing, MakeTransparent makeTransparent,
+    public Level2(Countdown countdown, Handler handler, HUD hud, BufferedImage koffing, MakeTransparent makeTransparent,
                   MakeMirror makeMirror, Game game, BufferedImage background, BufferedImage grass){
         this.countdown = countdown;
         this.handler = handler;
@@ -126,4 +126,5 @@ public class Level1 {
             countdown.render(g);
         }
     }
+
 }

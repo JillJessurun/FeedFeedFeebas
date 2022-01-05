@@ -5,24 +5,33 @@ import java.io.*;
 
 public class GameOver extends MouseAdapter {
 
+    //classes
     private Game game;
     private HUD hud;
     private Countdown countdown;
     private Menu menu;
     private Handler handler;
-    private File file;
+    private File fileLevel1;
+    private File fileLevel2;
+    private File fileLevel3;
     private Level1 level1;
-    private boolean appended = false;
-    private boolean newHighscore = true;
+    private HighscoreCheck highscoreCheck;
 
-    public GameOver(Game game, HUD hud, Countdown countdown, Menu menu, Handler handler, File file, Level1 level1){
+    //variables
+
+
+    //constructor
+    public GameOver(Game game, HUD hud, Countdown countdown, Menu menu, Handler handler, File fileLevel1, Level1 level1, HighscoreCheck highscoreCheck, File fileLevel2, File fileLevel3){
         this.game = game;
         this.hud = hud;
         this.countdown = countdown;
         this.menu = menu;
         this.handler = handler;
-        this.file = file;
+        this.fileLevel1 = fileLevel1;
         this.level1 = level1;
+        this.highscoreCheck = highscoreCheck;
+        this.fileLevel2 = fileLevel2;
+        this.fileLevel3 = fileLevel3;
     }
 
     public void mousePressed(MouseEvent e) {
@@ -74,22 +83,25 @@ public class GameOver extends MouseAdapter {
 
     public void render(Graphics g) throws IOException, FontFormatException {
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+
+        //colors
         Color color = new Color(186, 0, 196);
         Color color3 = new Color(118, 0, 196);
         Color color2 = new Color(68, 68, 68, 3);
-        Color color4 = new Color(10, 203, 5);
 
+        //fonts
         Font pokemonFont = Font.createFont(Font.TRUETYPE_FONT, new File("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Fonts\\pokemon.ttf")).deriveFont(140f);
         ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Fonts\\pokemon.ttf")));
         Font pokemonFont2 = Font.createFont(Font.TRUETYPE_FONT, new File("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Fonts\\pokemon.ttf")).deriveFont(30f);
         ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Fonts\\pokemon.ttf")));
-        Font pokemonFont3 = Font.createFont(Font.TRUETYPE_FONT, new File("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Fonts\\pokemon.ttf")).deriveFont(35f);
-        ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Fonts\\pokemon.ttf")));
         Font buttonFont = Font.createFont(Font.TRUETYPE_FONT, new File("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Fonts\\Like Snow.ttf")).deriveFont(50f);
         ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Fonts\\Like Snow.ttf")));
 
+        //opacitive background
         g.setColor(color2);
         g.fillRect(0,0,1920,1080);
+
+        //text
         g.setFont(pokemonFont);
         g.setColor(color);
         if (hud.getEATSCORE() < 25) {
@@ -102,44 +114,17 @@ public class GameOver extends MouseAdapter {
         g.setFont(pokemonFont2);
         g.drawString("Your final eating score: " + hud.getEATSCORE(), 605, 480);
 
+        //home button
         g.setColor(Color.black);
         g.setFont(buttonFont);
         g.drawString("Home", 700, 690);
         //g.drawRect(698, 645, 130, 53);
 
-        //HIGHSCORE SETUP
-        int highScore = hud.getEATSCORE();
-        int oldHighscore = 0;
-        BufferedReader reader = new BufferedReader(new FileReader(file));
-        String line = reader.readLine();
-        while (line != null){
-            int score = Integer.parseInt(line.trim());   // parse each line as an int
-            if (score > highScore){
-                highScore = score;
-                newHighscore = false;
-                oldHighscore = score;
-            }
-
-            line = reader.readLine();
-        }
-        reader.close();
-
-        if (!appended && newHighscore) {
-            //append highscore to the file
-            BufferedWriter output = new BufferedWriter(new FileWriter(file, true));
-            output.newLine();
-            output.append("" + highScore);
-            output.close();
-            appended = true;
-        }
-
-        if(hud.getEATSCORE() == highScore ) {
-            g.setColor(color4);
-            g.setFont(pokemonFont3);
-            g.drawString("New high score!", 655, 530);
-        }else{
-            g.setFont(pokemonFont3);
-            g.drawString("Your highscore: " + oldHighscore, 640, 550);
+        //highscore check and save based on levelstate
+        if (game.levelState == Game.STATE.Level1) {
+            highscoreCheck.render(g, fileLevel1);
+        }else if (game.levelState == Game.STATE.Level2) {
+            highscoreCheck.render(g, fileLevel2);
         }
     }
 

@@ -5,9 +5,12 @@ import java.awt.image.BufferStrategy;
 
 public class Window {
 
+    public JFrame frame;
+
     public Window(int width, int height, String title, Game game){
         //create frame
         JFrame frame = new JFrame(title);
+        this.frame = frame;
         Image icon = Toolkit.getDefaultToolkit().getImage("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Images\\feebasicon.png");
         frame.setIconImage(icon);
 
@@ -25,4 +28,7 @@ public class Window {
         game.start();//runs the start method you created in your Game class
     }
 
+    public JFrame getFrame() {
+        return frame;
+    }
 }

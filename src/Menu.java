@@ -19,6 +19,7 @@ public class Menu extends MouseAdapter {
     private Game game;
     private Random random;
     private Image image;
+    private Paint paint;
     public boolean explosion = false;
     private int timer = 0;
     private int timerAudio = 0;
@@ -34,7 +35,7 @@ public class Menu extends MouseAdapter {
     private float x2 = 1470;
 
     public Menu(BufferedImage feebasBG, BufferedImage feebasSprite, MakeTransparent makeTransparent,
-                Handler handler, Game game, BufferedImage feebasMoving, Random random, BufferedImage food, Countdown countdown){
+                Handler handler, Game game, BufferedImage feebasMoving, Random random, BufferedImage food, Countdown countdown, Paint paint){
         this.feebasBG = feebasBG;
         this.feebasSprite = feebasSprite;
         this.makeTransparent = makeTransparent;
@@ -45,6 +46,7 @@ public class Menu extends MouseAdapter {
         this.random = random;
         this.food = food;
         this.countdown = countdown;
+        this.paint = paint;
 
         image = Toolkit.getDefaultToolkit().createImage("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Images\\explosion.gif");
     }
@@ -183,10 +185,6 @@ public class Menu extends MouseAdapter {
         }
     }
 
-    public void paint(Graphics g){
-
-    }
-
     public void render(Graphics g) throws IOException, FontFormatException {
         g.drawImage(feebasBG, 0,0,null);
         g.setColor(Color.BLACK);
@@ -227,6 +225,8 @@ public class Menu extends MouseAdapter {
         //suicide feebas
         g.drawImage(makeTransparent.makeColorTransparent(feebasMoving, new Color(colour)), (int)x, (int)y, null);
         g.drawImage(makeTransparent.makeColorTransparent(food, new Color(colour)), (int)x2, (int)y2, null);
+        //BufferedImage bufferedImage = makeTransparent.imageToBufferedImage(makeTransparent.makeColorTransparent(feebasMoving, new Color(colour)));
+        //paint.paintComponent(g, (int)x, (int)y, bufferedImage);
 
         //gif
         if (explosion) {

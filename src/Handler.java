@@ -1,7 +1,10 @@
+import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.LinkedList;
 
-public class Handler {
+public class Handler extends JPanel implements ActionListener {
     LinkedList<GameObject> object = new LinkedList<GameObject>();
 
     public void tick(){
@@ -35,5 +38,10 @@ public class Handler {
             }
         }
         return newList;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+
     }
 }

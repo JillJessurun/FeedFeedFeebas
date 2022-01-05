@@ -12,15 +12,19 @@ public class LevelMenu extends MouseAdapter {
     private Game game;
     private Countdown countdown;
     private Menu menu;
-    private File file;
+    private File fileLevel1;
+    private File fileLevel2;
+    private File fileLevel3;
     public boolean playPressed;
 
-    public LevelMenu(Game game, Countdown countdown, Menu menu, File file) {
+    public LevelMenu(Game game, Countdown countdown, Menu menu, File fileLevel1, File fileLevel2, File fileLevel3) {
         this.game = game;
         this.countdown = countdown;
         this.menu = menu;
         this.playPressed = menu.playPressed;
-        this.file = file;
+        this.fileLevel1 = fileLevel1;
+        this.fileLevel2 = fileLevel2;
+        this.fileLevel3 = fileLevel3;
     }
 
     public void mousePressed(MouseEvent e) {
@@ -35,6 +39,26 @@ public class LevelMenu extends MouseAdapter {
         //level1 button level menu
         if (mouseOver(mx, my, 257, 380, 80,22) && game.gameState == Game.STATE.LevelMenu) {
             game.gameState = Game.STATE.Level1;
+            game.levelState = Game.STATE.Level1;
+
+            Image newimage = Toolkit.getDefaultToolkit().createImage("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Images\\steak.gif");
+            Image newimage2 = Toolkit.getDefaultToolkit().createImage("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Images\\loading.gif");
+            countdown.setImage3(newimage);
+            countdown.setImage2(newimage2);
+
+            menu.playPressed = true;
+            try {
+                game.mainAudio.stopMusic();
+                game.loadingAudio.startMusic();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        //level2 button level menu
+        if (mouseOver(mx, my, 257, 410, 80,22) && game.gameState == Game.STATE.LevelMenu) {
+            game.gameState = Game.STATE.Level2;
+            game.levelState = Game.STATE.Level2;
 
             Image newimage = Toolkit.getDefaultToolkit().createImage("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Images\\steak.gif");
             Image newimage2 = Toolkit.getDefaultToolkit().createImage("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Images\\loading.gif");
@@ -101,7 +125,7 @@ public class LevelMenu extends MouseAdapter {
         }
         reader.close();
 
-        if (highScore >= 25 && level == 1){
+        if (highScore >= 25){
             g.setColor(Color.green);
         }else {
             g.setColor(Color.black);
@@ -160,9 +184,9 @@ public class LevelMenu extends MouseAdapter {
         g.setFont(buttonFont2);
 
         //world 1 levels
-        drawLevel(257, 380, 80,22, 240, 400, 1, g, file);
-        drawLevel(257, 410, 80,22, 240, 430, 2, g, file);
-        drawLevel(257, 440, 80,22, 240, 460, 3, g, file);
+        drawLevel(257, 380, 80,22, 240, 400, 1, g, fileLevel1);
+        drawLevel(257, 410, 80,22, 240, 430, 2, g, fileLevel2);
+        drawLevel(257, 440, 80,22, 240, 460, 3, g, fileLevel3);
         //world 2 levels
         g.setColor(Color.gray);
         g.drawString("  Level 4", 430, 400);

@@ -13,18 +13,18 @@ g2d.setComposite(alphaComposite);
 ideas:
 - icoontje van snelkoppeling aanpassen
 - powerups toevoegen (chansey bar refill, health refill, multiple food spawns, speed power up, enemy freeze, enemy slow)
-- target toevoegen (bepaald aantal food eten). Als je de target hebt gehaald kan je wel doorgaan om een goede highscore
-  te behalen. Er komt ook een knop tevoorschijn 'end level'.
 - meer soundeffects
 - enemies hebben verschillende grootte
 - options; save, mute, help, naam van jouw feebas in kunnen voeren, new game starten
 - render probleem oplossen dat objecten niet weggaan als ze bewegen maar blijven renderen (onder de achtergrond)
 - scroll functie in level menu
 - try again button wanneer game over
+- text andere kleur bij hoveren over pauze menu knoppen
 - bliep geluid bij hoveren over knoppen
 - zorgen dat enemies niet in je kunnen spawnen
 */
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
@@ -33,13 +33,15 @@ import java.io.IOException;
 import java.util.Random;
 
 public class Game extends Canvas implements Runnable {
-    public static int WIDTH = 150;
-    public static int HEIGHT = 80;
+
+    //classes
     private Thread thread;
-    private boolean running = true;
+    public JFrame jFrame;
+    public JPanel jPanel;
     private Handler handler;
     private HUD hud;
     private KeyInput keyInput;
+    private Paint paint;
     private BufferedImageLoader loader;
     private MakeTransparent makeTransparent;
     private Random random;
@@ -48,8 +50,21 @@ public class Game extends Canvas implements Runnable {
     private static Menu menu;
     private PausedMenu pausedMenu;
     private Popup popUpWarning;
-    public boolean inGame = false;
     private GameOver gameOver;
+    private LevelMenu levelMenu;
+    private File fileLevel1;
+    private File fileLevel2;
+    private File fileLevel3;
+    public Player player;
+    public HighscoreCheck highscoreCheck;
+    private Level1 level1;
+    private Level2 level2;
+
+    //variables
+    public static int WIDTH = 150;
+    public static int HEIGHT = 80;
+    private boolean running = true;
+    public boolean inGame = false;
     public boolean gameover = false;
     private boolean menuCreated;
     private boolean hudCreated;
@@ -58,10 +73,6 @@ public class Game extends Canvas implements Runnable {
     private int timer2 = 0;
     private boolean popUpWarningCreated = false;
     public boolean removedAllObjects = false;
-    private LevelMenu levelMenu;
-    private File file;
-    public Player player;
-    private Level1 level1;
 
     //audio
     public static Audio mainAudio;
@@ -79,10 +90,13 @@ public class Game extends Canvas implements Runnable {
         PopUp,
         GameOver,
         LevelMenu,
-        Level1
+        Level1,
+        Level2
     }
 
+    //states
     public STATE gameState = STATE.Menu;
+    public STATE levelState;
 
     //images
     private BufferedImage background;
@@ -172,9 +186,11 @@ public class Game extends Canvas implements Runnable {
         System.out.println("HEIGHT = " + HEIGHT);
 
         //create the window
-        new Window(WIDTH, HEIGHT, "FeedFeedFeebas!", this);
+        Window window = new Window(WIDTH, HEIGHT, "FeedFeedFeebas!", this);
+        jFrame = window.getFrame();
 
         handler = new Handler();
+        jFrame.add(handler);
 
         //audio
         mainAudio = new Audio();
@@ -183,25 +199,30 @@ public class Game extends Canvas implements Runnable {
         foodAudio = new Audio();
 
         //create instances
-        file = new File("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\HighscoreW1L1.txt");
+        fileLevel1 = new File("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Highscores\\HighscoreW1L1.txt");
+        fileLevel2 = new File("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Highscores\\HighscoreW1L2.txt");
+        fileLevel3 = new File("C:\\Users\\pc\\IdeaProjects\\FeedFeedFeebas!\\src\\Highscores\\HighscoreW1L3.txt");
         loadingAudio = new Audio();
         countdown = new Countdown();
         makeTransparent = new MakeTransparent();
         random = new Random();
         makeMirror = new MakeMirror();
-        menu = new Menu(feebasBG, feebasSprite, makeTransparent, handler, this, feebas, random, steak, countdown);
+        paint = new Paint();
+        menu = new Menu(feebasBG, feebasSprite, makeTransparent, handler, this, feebas, random, steak, countdown, paint);
         hud = new HUD(this, chansey2, makeTransparent, menu);
         this.menuCreated = true;
         this.hudCreated = true;
         pausedMenu = new PausedMenu(this);
+        highscoreCheck = new HighscoreCheck(hud);
 
         //levels
         level1 = new Level1(countdown, handler, hud, koffing, makeTransparent, makeMirror, this, background, grass);
+        level2 = new Level2(countdown, handler, hud, koffing, makeTransparent, makeMirror, this, background, grass);
 
         popUpWarning = new Popup(this, hud, countdown, menu, handler, level1);
         popUpWarningCreated = true;
-        gameOver = new GameOver(this, hud, countdown, menu, handler, file, level1);
-        levelMenu = new LevelMenu(this, countdown, menu, file);
+        gameOver = new GameOver(this, hud, countdown, menu, handler, fileLevel1, level1, highscoreCheck, fileLevel2, fileLevel3);
+        levelMenu = new LevelMenu(this, countdown, menu, fileLevel1, fileLevel2,fileLevel3);
 
         Player player1 = new Player(WIDTH / 2 - 32, HEIGHT / 2 - 32, ID.Player, handler, hud, keyInput, feebas, makeTransparent, steak, makeMirror, this);
         this.player = player1;
@@ -238,6 +259,8 @@ public class Game extends Canvas implements Runnable {
         if (hudCreated && menuCreated) {
             if (gameState == STATE.Level1) {
                 level1.tick();
+            } else if (gameState == STATE.Level2) {
+                level2.tick();
             } else if (gameState == STATE.Menu || gameState == STATE.Options) {
                 menu.tick();
             } else if (gameState == STATE.Pause || gameState == STATE.OptionsInGame) {
@@ -293,6 +316,8 @@ public class Game extends Canvas implements Runnable {
         if (hudCreated && menuCreated) {
             if (gameState == STATE.Level1) {
                 level1.render(g);
+            } else if (gameState == STATE.Level2) {
+                level2.render(g);
             } else if (gameState == STATE.Menu || gameState == STATE.Options) {
                 menu.render(g);
             } else if (gameState == STATE.Pause || gameState == STATE.OptionsInGame || gameState == STATE.PopUp) {
@@ -366,10 +391,6 @@ public class Game extends Canvas implements Runnable {
         } else {
             return var;
         }
-    }
-
-    public static void resetData() {
-
     }
 
     //main
